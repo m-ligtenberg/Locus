@@ -248,5 +248,10 @@
     "date": "2025-07-19",
     "version": "8a69e5a",
     "description": "Add extensive debugging to iOS build workflow"
+  },
+  {
+    "date": "2025-07-19",
+    "version": "1fd9c61",
+    "description": "Merge branch 'main' of https://github.com/michligtenberg2/travelbot"
   }
 ]
