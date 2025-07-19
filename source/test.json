@@ -1,0 +1,23 @@
+{
+  "name": "Test Store",
+  "identifier": "test.store",
+  "sourceURL": "https://michligtenberg.nl/source/test.json",
+  "apps": [
+    {
+      "name": "TravelBot",
+      "bundleIdentifier": "com.travelbot.app",
+      "developerName": "Mich",
+      "subtitle": "Test app",
+      "localizedDescription": "Test description",
+      "iconURL": "https://michligtenberg.nl/source/icons/travelbot-icon.png",
+      "versions": [
+        {
+          "version": "4.0.0",
+          "date": "2025-07-19T00:00:00Z",
+          "downloadURL": "https://michligtenberg.nl/travelbot/releases/TravelBot-4.0.0.ipa",
+          "size": 1136431
+        }
+      ]
+    }
+  ]
+}

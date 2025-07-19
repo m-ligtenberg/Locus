@@ -1,0 +1,27 @@
+{
+	"appId": "com.travelbot.app",
+	"appName": "TravelBot",
+	"webDir": "www",
+	"bundledWebRuntime": false,
+	"plugins": {
+		"Geolocation": {
+			"permissions": [
+				"location"
+			]
+		}
+	},
+	"ios": {
+		"scheme": "TravelBot",
+		"backgroundColor": "#ffffff",
+		"cordova": {
+			"preferences": {
+				"NSLocationWhenInUseUsageDescription": "TravelBot gebruikt je locatie om sarcastische routehints te geven.",
+				"NSMicrophoneUsageDescription": "Voor spraakoutput of audio hints indien nodig.",
+				"NSSpeechRecognitionUsageDescription": "Voor gesproken output (via Web Speech of alternatief)."
+			}
+		}
+	},
+	"server": {
+		"androidScheme": "https"
+	}
+}

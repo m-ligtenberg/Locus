@@ -5,8 +5,7 @@
 
 class TravelBotApp {
     constructor() {
-        this.version = '4.0-PAL';
-        this.region = 'PAL'; // Europa/Nederland
+        this.version = '4.0';
         this.currentPersona = null;
         this.isNightMode = false;
         this.isInitialized = false;

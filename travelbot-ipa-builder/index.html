@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelBot v4.0 - AI Navigatie</title>
+    <meta name="description" content="TravelBot v4.0 - Slimme AI-navigator met real-time routing en locatiebewuste observaties">
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2196F3">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Language Selector (v3.0 Feature) -->
+    <div id="language-selector" class="language-selector">
+        <select id="language-select">
+            <option value="nl">🇳🇱 Nederlands</option>
+            <option value="en">🇬🇧 English</option>
+            <option value="de">🇩🇪 Deutsch</option>
+            <option value="fr">🇫🇷 Français</option>
+        </select>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app" class="app-container">
+        <!-- Header with Night Mode Detection -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1 class="app-title">
+                    🧭 TravelBot <span class="version">v4.0</span>
+                </h1>
+                <div class="header-controls">
+                    <button id="navigation-toggle" class="control-btn" title="Navigatie">
+                        🗺️
+                    </button>
+                    <button id="voice-toggle" class="control-btn" title="Spraakcommando's">
+                        🎤
+                    </button>
+                    <button id="night-mode-toggle" class="control-btn" title="Nachtmodus">
+                        🌙
+                    </button>
+                    <button id="settings-btn" class="control-btn" title="Instellingen">
+                        ⚙️
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Status Bar -->
+        <div id="status-bar" class="status-bar">
+            <div class="status-item">
+                <span id="location-status">📍 GPS verbinden...</span>
+            </div>
+            <div class="status-item">
+                <span id="voice-status">🎤 Spraak: Uit</span>
+            </div>
+            <div class="status-item">
+                <span id="navigation-status">🧭 Navigatie: Uit</span>
+            </div>
+        </div>
+
+        <!-- Navigation Panel (v4.0) -->
+        <div id="navigation-panel" class="navigation-panel hidden">
+            <div class="nav-header">
+                <h3>🧭 Navigatie</h3>
+                <button id="close-navigation" class="close-btn">×</button>
+            </div>
+            
+            <div class="destination-input">
+                <input type="text" id="destination-search" placeholder="Voer bestemming in..." />
+                <button id="start-navigation-btn" class="nav-btn">Start</button>
+            </div>
+
+            <div id="route-info" class="route-info hidden">
+                <div class="route-summary">
+                    <div class="route-stat">
+                        <span class="stat-value" id="route-distance">--</span>
+                        <span class="stat-label">km</span>
+                    </div>
+                    <div class="route-stat">
+                        <span class="stat-value" id="route-duration">--</span>
+                        <span class="stat-label">min</span>
+                    </div>
+                    <button id="stop-navigation-btn" class="nav-btn danger">Stop</button>
+                </div>
+            </div>
+
+            <div id="current-instruction" class="current-instruction hidden">
+                <div class="instruction-icon">➡️</div>
+                <div class="instruction-text">
+                    <span id="instruction-distance">Over 500m</span>
+                    <span id="instruction-action">Rechtsaf naar A4</span>
+                </div>
+            </div>
+
+            <!-- Map Container -->
+            <div id="map-container" class="map-container">
+                <div id="navigation-map"></div>
+            </div>
+        </div>
+
+        <!-- Persona Selector -->
+        <div id="persona-selector" class="persona-selector">
+            <h2 data-translate="choose_persona">Kies je AI reisgenoot:</h2>
+            <div class="persona-grid">
+                <button class="persona-card" data-persona="amsterdammer">
+                    <div class="persona-emoji">🏛️</div>
+                    <h3>De Amsterdammer</h3>
+                    <p data-translate="amsterdammer_desc">Directe, nuchtere Amsterdam-style</p>
+                </button>
+                <button class="persona-card" data-persona="belg">
+                    <div class="persona-emoji">🍺</div>
+                    <h3>Neerslachtige Belg</h3>
+                    <p data-translate="belg_desc">Melancholisch maar grappig</p>
+                </button>
+                <button class="persona-card" data-persona="brabander">
+                    <div class="persona-emoji">🍻</div>
+                    <h3>Brabander</h3>
+                    <p data-translate="brabander_desc">Gezellige Brabantse humor</p>
+                </button>
+                <button class="persona-card" data-persona="jordanees">
+                    <div class="persona-emoji">👑</div>
+                    <h3>Jordanees</h3>
+                    <p data-translate="jordanees_desc">Amsterdamse volksbuurt charme</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Travel Interface (Hidden initially) -->
+        <div id="travel-interface" class="travel-interface hidden">
+            <!-- Current Location Display -->
+            <div class="location-display">
+                <h3 id="current-location" data-translate="current_location">Huidige locatie:</h3>
+                <p id="location-details">📍 Locatie laden...</p>
+                <div class="location-meta">
+                    <span id="speed-indicator">🚗 0 km/h</span>
+                    <span id="direction-indicator">🧭 --</span>
+                </div>
+            </div>
+
+            <!-- AI Response Area -->
+            <div class="ai-response-area">
+                <div id="ai-response" class="ai-response">
+                    <div class="persona-avatar">
+                        <span id="persona-emoji">🤖</span>
+                    </div>
+                    <div class="response-content">
+                        <p id="response-text" data-translate="welcome">Welkom! Ik ga je vergezellen op je reis.</p>
+                        <div class="response-actions">
+                            <button id="speak-btn" class="action-btn">🔊</button>
+                            <button id="share-btn" class="action-btn">📤</button>
+                            <button id="new-response-btn" class="action-btn" data-translate="new_comment">Nieuw commentaar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voice Command Interface -->
+            <div id="voice-interface" class="voice-interface hidden">
+                <div class="voice-status">
+                    <div id="voice-animation" class="voice-animation"></div>
+                    <p id="voice-feedback" data-translate="listening">Luisteren...</p>
+                </div>
+                <div class="voice-commands">
+                    <h4 data-translate="try_commands">Probeer deze commando's:</h4>
+                    <ul>
+                        <li>"Waar ben ik?"</li>
+                        <li>"Wat zegt de [persona]?"</li>
+                        <li>"Zeg iets cynisch"</li>
+                        <li>"Nieuwe opmerking"</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Interactive Chat -->
+            <div class="chat-interface">
+                <div id="chat-messages" class="chat-messages"></div>
+                <div class="chat-input-container">
+                    <input type="text" id="chat-input" placeholder="Vraag iets aan je reisgenoot..." data-translate-placeholder="ask_companion">
+                    <button id="send-btn" class="send-btn">📤</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Debug Panel (Developer Mode) -->
+        <div id="debug-panel" class="debug-panel hidden">
+            <h3>🧪 Developer Debug</h3>
+            <div class="debug-controls">
+                <button id="mock-location-btn">📍 Mock Locatie</button>
+                <button id="simulate-movement-btn">🚗 Simuleer Beweging</button>
+                <button id="test-voices-btn">🎵 Test Stemmen</button>
+                <button id="performance-log-btn">📊 Performance Log</button>
+            </div>
+            <div id="debug-output" class="debug-output"></div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="loading-spinner"></div>
+            <p data-translate="loading">TravelBot laden...</p>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="share-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 data-translate="share_quote">Quote delen</h2>
+            <div id="share-canvas-container">
+                <canvas id="share-canvas" width="600" height="400"></canvas>
+            </div>
+            <div class="share-actions">
+                <button id="download-image-btn" data-translate="download_image">Download Afbeelding</button>
+                <button id="copy-link-btn" data-translate="copy_link">Kopieer Link</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- TravelBot v4.0 Scripts -->
+    <script src="translations.js"></script>
+    <script src="speech.js"></script>
+    <script src="tts.js"></script>
+    <script src="location.js"></script>
+    <script src="navigation.js"></script>
+    <script src="smart-observations.js"></script>
+    <script src="chat.js"></script>
+    <script src="share.js"></script>
+    <script src="mock.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 data-translate="settings">Instellingen</h2>
+            <div class="settings-content">
+                <div class="setting-group">
+                    <label data-translate="update_interval">Update interval (minuten):</label>
+                    <input type="range" id="interval-slider" min="1" max="30" value="15">
+                    <span id="interval-value">15</span>
+                </div>
+                <div class="setting-group">
+                    <label data-translate="voice_enabled">Spraak ingeschakeld:</label>
+                    <input type="checkbox" id="voice-enabled" checked>
+                </div>
+                <div class="setting-group">
+                    <label data-translate="auto_night_mode">Automatische nachtmodus:</label>
+                    <input type="checkbox" id="auto-night-mode" checked>
+                </div>
+                <div class="setting-group">
+                    <label data-translate="developer_mode">Developer modus:</label>
+                    <input type="checkbox" id="developer-mode">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="translations.js"></script>
+    <script src="speech.js"></script>
+    <script src="tts.js"></script>
+    <script src="location.js"></script>
+    <script src="chat.js"></script>
+    <script src="share.js"></script>
+    <script src="mock.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

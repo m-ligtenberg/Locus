@@ -1,6 +1,6 @@
 {
-  "appId": "com.travelbot.app",
-  "appName": "TravelBot",
+  "appId": "com.travelbot.app.pal",
+  "appName": "TravelBot PAL",
   "webDir": "www",
   "bundledWebRuntime": false,
   "plugins": {

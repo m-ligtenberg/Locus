@@ -1,0 +1,26 @@
+{
+  "name": "Test Store PAL",
+  "identifier": "test.store.pal",
+  "sourceURL": "https://michligtenberg.nl/source/test.json",
+  "apps": [
+    {
+      "name": "TravelBot PAL",
+      "bundleIdentifier": "com.travelbot.app.pal",
+      "marketplaceID": "travelbot-4.0-pal",
+      "developerName": "Mich",
+      "subtitle": "Test app",
+      "localizedDescription": "Test description",
+      "iconURL": "https://michligtenberg.nl/source/icons/travelbot-icon.png",
+      "versions": [
+        {
+          "version": "4.0.0",
+          "date": "2025-07-19T00:00:00Z",
+          "versionDate": "2025-07-19T00:00:00Z",
+          "localizedDescription": "TravelBot v4.0 - Complete rebuild",
+          "downloadURL": "https://michligtenberg.nl/travelbot/releases/TravelBot-4.0.0-PAL.ipa",
+          "size": 1136431
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.travelbot.app" version="2025.07.19" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>TravelBot</name>
+    <description>AI-powered travel companion met sarcastische routehints</description>
+    <author email="mich@michligtenberg.nl" href="https://michligtenberg.nl">
+        Mich Ligtenberg
+    </author>
+    
+    <content src="index.html" />
+    
+    <access origin="*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <allow-intent href="tel:*" />
+    <allow-intent href="sms:*" />
+    <allow-intent href="mailto:*" />
+    <allow-intent href="geo:*" />
+    
+    <!-- Permissions -->
+    <preference name="Orientation" value="portrait" />
+    <preference name="DisallowOverscroll" value="true" />
+    <preference name="BackupWebStorage" value="none" />
+    <preference name="SplashScreenDelay" value="0" />
+    
+    <!-- iOS specific -->
+    <platform name="ios">
+        <preference name="WKWebViewOnly" value="true" />
+        <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
+        
+        <config-file target="*-Info.plist" parent="NSLocationWhenInUseUsageDescription">
+            <string>TravelBot gebruikt je locatie om sarcastische routehints te geven.</string>
+        </config-file>
+        <config-file target="*-Info.plist" parent="NSMicrophoneUsageDescription">
+            <string>Voor spraakoutput of audio hints indien nodig.</string>
+        </config-file>
+        <config-file target="*-Info.plist" parent="NSSpeechRecognitionUsageDescription">
+            <string>Voor gesproken output (via Web Speech of alternatief).</string>
+        </config-file>
+        
+        <!-- App Icons -->
+        <icon src="assets/icon-40.png" width="40" height="40" />
+        <icon src="assets/icon-80.png" width="80" height="80" />
+        <icon src="assets/icon-120.png" width="120" height="120" />
+        <icon src="assets/icon-180.png" width="180" height="180" />
+    </platform>
+    
+    <!-- Plugins -->
+    <plugin name="cordova-plugin-geolocation" spec="~4.1.0" />
+    <plugin name="cordova-plugin-device" spec="~2.1.0" />
+    <plugin name="cordova-plugin-wkwebview-engine" spec="~1.2.1" />
+</widget>

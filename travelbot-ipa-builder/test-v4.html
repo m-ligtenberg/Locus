@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelBot v4.0 Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .test-btn {
+            background: #2196F3;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .test-btn:hover {
+            background: #1976D2;
+        }
+        
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+        }
+        
+        .error {
+            background: #ffebee;
+            border-left-color: #f44336;
+        }
+        
+        .success {
+            background: #e8f5e8;
+            border-left-color: #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧭 TravelBot v4.0 - Test Interface</h1>
+    
+    <div class="test-section">
+        <h2>📍 Locatie Tests</h2>
+        <button class="test-btn" onclick="testLocation()">Test GPS Locatie</button>
+        <button class="test-btn" onclick="testSmartObservation()">Test Slimme Observatie</button>
+        <div id="location-status" class="status">Klik op test knop om te starten</div>
+    </div>
+
+    <div class="test-section">
+        <h2>🧭 Navigatie Tests</h2>
+        <input type="text" id="test-destination" placeholder="Voer bestemming in (bijv. Amsterdam)" style="padding: 8px; margin: 5px; width: 300px;">
+        <button class="test-btn" onclick="testGeocoding()">Test Geocoding</button>
+        <button class="test-btn" onclick="testRouting()">Test Route Berekening</button>
+        <div id="navigation-status" class="status">Navigatie tests</div>
+    </div>
+
+    <div class="test-section">
+        <h2>🤖 AI Observatie Tests</h2>
+        <button class="test-btn" onclick="testObservationTrigger()">Test POI Observatie</button>
+        <button class="test-btn" onclick="testStreetNameObservation()">Test Straatnaam Observatie</button>
+        <button class="test-btn" onclick="testTrafficObservation()">Test File Observatie</button>
+        <div id="ai-status" class="status">AI observatie tests</div>
+    </div>
+
+    <div class="test-section">
+        <h2>🗺️ Kaart Tests</h2>
+        <div id="test-map" style="height: 300px; border: 1px solid #ccc; margin: 10px 0;"></div>
+        <button class="test-btn" onclick="initTestMap()">Initialiseer Kaart</button>
+        <button class="test-btn" onclick="testMapRoute()">Test Route Weergave</button>
+    </div>
+
+    <div class="test-section">
+        <h2>🔊 TTS Tests</h2>
+        <button class="test-btn" onclick="testNavigationTTS()">Test Navigatie Spraak</button>
+        <button class="test-btn" onclick="testObservationTTS()">Test Observatie Spraak</button>
+        <div id="tts-status" class="status">TTS tests</div>
+    </div>
+
+    <!-- Include Leaflet for map testing -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // Test global variables
+        let testMap = null;
+        let testLocation = { latitude: 52.3676, longitude: 4.9041 }; // Amsterdam
+        
+        // Mock location for testing
+        function mockLocation() {
+            return {
+                latitude: 52.3676 + (Math.random() - 0.5) * 0.01,
+                longitude: 4.9041 + (Math.random() - 0.5) * 0.01,
+                timestamp: Date.now()
+            };
+        }
+
+        // Location Tests
+        function testLocation() {
+            updateStatus('location-status', 'GPS locatie testen...', 'status');
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const loc = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                            accuracy: position.coords.accuracy
+                        };
+                        updateStatus('location-status', 
+                            `✅ Locatie verkregen: ${loc.latitude.toFixed(4)}, ${loc.longitude.toFixed(4)} (±${Math.round(loc.accuracy)}m)`, 
+                            'success');
+                        testLocation = loc;
+                    },
+                    (error) => {
+                        updateStatus('location-status', `❌ GPS fout: ${error.message}`, 'error');
+                    },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            } else {
+                updateStatus('location-status', '❌ GPS niet ondersteund in deze browser', 'error');
+            }
+        }
+
+        function testSmartObservation() {
+            updateStatus('location-status', '🤖 Slimme observatie testen...', 'status');
+            
+            // Simulate interesting location
+            const mockInterestingLocation = {
+                latitude: 52.3738 + Math.random() * 0.001,
+                longitude: 4.8910 + Math.random() * 0.001
+            };
+
+            // Test observation logic
+            setTimeout(() => {
+                const observations = [
+                    "Oh kijk, weer zo'n hippe tent waar ze denken dat kleine porties artistiek zijn.",
+                    "We rijden door de Doodstraat... Nou, dat klinkt vrolijk. Wie heeft deze straatnamen bedacht?",
+                    "File! Geweldig. Precies wat we nodig hadden om de dag compleet te maken."
+                ];
+                
+                const randomObservation = observations[Math.floor(Math.random() * observations.length)];
+                updateStatus('location-status', `🤖 AI Observatie: "${randomObservation}"`, 'success');
+            }, 1500);
+        }
+
+        // Navigation Tests
+        function testGeocoding() {
+            const destination = document.getElementById('test-destination').value || 'Amsterdam';
+            updateStatus('navigation-status', `🔍 Geocoding ${destination}...`, 'status');
+
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destination)}&limit=1&countrycodes=nl,be,de`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        const result = data[0];
+                        updateStatus('navigation-status', 
+                            `✅ Bestemming gevonden: ${result.display_name} (${parseFloat(result.lat).toFixed(4)}, ${parseFloat(result.lon).toFixed(4)})`, 
+                            'success');
+                    } else {
+                        updateStatus('navigation-status', `❌ Bestemming "${destination}" niet gevonden`, 'error');
+                    }
+                })
+                .catch(error => {
+                    updateStatus('navigation-status', `❌ Geocoding fout: ${error.message}`, 'error');
+                });
+        }
+
+        function testRouting() {
+            updateStatus('navigation-status', '🗺️ Route berekenen...', 'status');
+            
+            // Mock route calculation
+            setTimeout(() => {
+                const mockRoute = {
+                    distance: Math.round(5000 + Math.random() * 10000), // 5-15 km
+                    duration: Math.round(300 + Math.random() * 600), // 5-15 minutes
+                    steps: [
+                        "Ga rechtdoor op de A4",
+                        "Over 500 meter, sla rechtsaf naar de Ring A10",
+                        "Over 2 kilometer, neem afslag 3 richting Amsterdam Centrum"
+                    ]
+                };
+
+                updateStatus('navigation-status', 
+                    `✅ Route berekend: ${(mockRoute.distance/1000).toFixed(1)} km, ${Math.round(mockRoute.duration/60)} minuten. Eerste instructie: "${mockRoute.steps[0]}"`, 
+                    'success');
+            }, 2000);
+        }
+
+        // AI Observation Tests
+        function testObservationTrigger() {
+            updateStatus('ai-status', '🏪 POI observatie testen...', 'status');
+            
+            setTimeout(() => {
+                const poiObservations = [
+                    "We passeren McDonald's! Ziet er... voorspelbaar uit.",
+                    "Oh kijk, een Starbucks. Want dat hadden we nog niet genoeg.",
+                    "Daar is een tankstation. Perfect voor als je houdt van dure koffie en oude broodjes."
+                ];
+                
+                const observation = poiObservations[Math.floor(Math.random() * poiObservations.length)];
+                updateStatus('ai-status', `🤖 POI Observatie: "${observation}"`, 'success');
+            }, 1000);
+        }
+
+        function testStreetNameObservation() {
+            updateStatus('ai-status', '📍 Straatnaam observatie testen...', 'status');
+            
+            setTimeout(() => {
+                const streetObservations = [
+                    "De Bloemenstraat... Laat me raden, er groeit hier helemaal niks?",
+                    "Koningsweg? Hopelijk rijdt er geen koning, die file wordt al lang genoeg.",
+                    "Doodstraat... Nou, dat klinkt vrolijk. Vast populair bij makelaars."
+                ];
+                
+                const observation = streetObservations[Math.floor(Math.random() * streetObservations.length)];
+                updateStatus('ai-status', `🗺️ Straatnaam Observatie: "${observation}"`, 'success');
+            }, 1000);
+        }
+
+        function testTrafficObservation() {
+            updateStatus('ai-status', '🚗 File observatie testen...', 'status');
+            
+            setTimeout(() => {
+                const trafficObservations = [
+                    "File! Geweldig. Precies wat we nodig hadden om de dag compleet te maken.",
+                    "We staan stil op de snelweg. Wat een verassing. Wie had dat zien aankomen?",
+                    "File-tijd! Perfect moment om na te denken over je levensskeuzes."
+                ];
+                
+                const observation = trafficObservations[Math.floor(Math.random() * trafficObservations.length)];
+                updateStatus('ai-status', `🚦 File Observatie: "${observation}"`, 'success');
+            }, 1000);
+        }
+
+        // Map Tests
+        function initTestMap() {
+            try {
+                const mapElement = document.getElementById('test-map');
+                if (testMap) {
+                    testMap.remove();
+                }
+                
+                testMap = L.map('test-map').setView([52.3676, 4.9041], 13);
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(testMap);
+
+                // Add current location marker
+                L.marker([testLocation.latitude, testLocation.longitude])
+                    .addTo(testMap)
+                    .bindPopup('Test locatie')
+                    .openPopup();
+
+                updateStatus('navigation-status', '✅ Kaart geïnitialiseerd', 'success');
+            } catch (error) {
+                updateStatus('navigation-status', `❌ Kaart fout: ${error.message}`, 'error');
+            }
+        }
+
+        function testMapRoute() {
+            if (!testMap) {
+                updateStatus('navigation-status', '❌ Initialiseer eerst de kaart', 'error');
+                return;
+            }
+
+            // Mock route coordinates
+            const routeCoords = [
+                [52.3676, 4.9041],  // Start
+                [52.3700, 4.9100],  // Waypoint 1
+                [52.3750, 4.9200],  // Waypoint 2
+                [52.3800, 4.9300]   // End
+            ];
+
+            const polyline = L.polyline(routeCoords, {
+                color: '#2196F3',
+                weight: 4,
+                opacity: 0.7
+            }).addTo(testMap);
+
+            testMap.fitBounds(polyline.getBounds());
+            
+            updateStatus('navigation-status', '✅ Test route getoond op kaart', 'success');
+        }
+
+        // TTS Tests
+        function testNavigationTTS() {
+            updateStatus('tts-status', '🔊 Navigatie spraak testen...', 'status');
+            
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance('Over 500 meter, sla rechtsaf naar de A4 richting Rotterdam');
+                utterance.lang = 'nl-NL';
+                utterance.rate = 0.9;
+                
+                utterance.onend = () => {
+                    updateStatus('tts-status', '✅ Navigatie instructie gesproken', 'success');
+                };
+                
+                utterance.onerror = (error) => {
+                    updateStatus('tts-status', `❌ TTS fout: ${error.error}`, 'error');
+                };
+                
+                speechSynthesis.speak(utterance);
+            } else {
+                updateStatus('tts-status', '❌ Spraaksynthese niet ondersteund', 'error');
+            }
+        }
+
+        function testObservationTTS() {
+            updateStatus('tts-status', '🤖 AI observatie spraak testen...', 'status');
+            
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance('Oh kijk, weer zo\'n tent waar ze denken dat kleine porties artistiek zijn.');
+                utterance.lang = 'nl-NL';
+                utterance.rate = 0.8;
+                utterance.pitch = 1.1;
+                
+                utterance.onend = () => {
+                    updateStatus('tts-status', '✅ AI observatie gesproken', 'success');
+                };
+                
+                utterance.onerror = (error) => {
+                    updateStatus('tts-status', `❌ TTS fout: ${error.error}`, 'error');
+                };
+                
+                speechSynthesis.speak(utterance);
+            } else {
+                updateStatus('tts-status', '❌ Spraaksynthese niet ondersteund', 'error');
+            }
+        }
+
+        // Utility function
+        function updateStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = message;
+                element.className = `status ${type}`;
+            }
+        }
+
+        // Initialize test location on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStatus('location-status', '🧭 TravelBot v4.0 Test Interface geladen', 'success');
+            updateStatus('navigation-status', 'Klaar voor navigatie tests', 'status');
+            updateStatus('ai-status', 'AI observatie systeem gereed', 'status');
+            updateStatus('tts-status', 'TTS systeem gereed', 'status');
+        });
+    </script>
+</body>
+</html>

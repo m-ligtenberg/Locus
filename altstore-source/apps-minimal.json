@@ -1,0 +1,27 @@
+{
+  "name": "Mich's App Store",
+  "identifier": "nl.michligtenberg.appstore",
+  "sourceURL": "https://michligtenberg.nl/source/apps.json",
+  "apps": [
+    {
+      "name": "TravelBot",
+      "bundleIdentifier": "com.travelbot.app",
+      "marketplaceID": "travelbot-4.0",
+      "developerName": "Mich Ligtenberg",
+      "subtitle": "AI-powered travel companion",
+      "localizedDescription": "Slimme reisgenoot met GPS navigatie en AI-powered routehints.",
+      "iconURL": "https://michligtenberg.nl/source/icons/travelbot-icon.png",
+      "tintColor": "#2196F3",
+      "versions": [
+        {
+          "version": "4.0.0",
+          "date": "2025-07-19T00:00:00Z",
+          "localizedDescription": "TravelBot v4.0 - Complete rebuild with enhanced features.",
+          "downloadURL": "https://michligtenberg.nl/travelbot/releases/TravelBot-4.0.0.ipa",
+          "size": 1136431,
+          "minOSVersion": "12.0"
+        }
+      ]
+    }
+  ]
+}
