@@ -189,3 +189,60 @@ code {
   border-radius: 2px;
   transition: width 0.5s ease-in-out;
 }
+
+/* Young Ellens specific animations */
+@keyframes denial-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px) rotate(-0.5deg); }
+  75% { transform: translateX(2px) rotate(0.5deg); }
+}
+
+.denial-animation {
+  animation: denial-shake 0.5s ease-in-out;
+}
+
+@keyframes signature-glow {
+  0% { 
+    background-color: var(--accent-green); 
+    box-shadow: 0 0 5px var(--accent-green);
+  }
+  50% { 
+    background-color: var(--accent-yellow); 
+    box-shadow: 0 0 15px var(--accent-yellow);
+  }
+  100% { 
+    background-color: var(--accent-green); 
+    box-shadow: 0 0 5px var(--accent-green);
+  }
+}
+
+.signature-badge {
+  animation: signature-glow 2s ease-in-out infinite;
+}
+
+/* B-Negar style text effects */
+.b-negar-text {
+  font-weight: bold;
+  color: var(--accent-yellow);
+  text-shadow: 0 0 10px var(--accent-yellow);
+  animation: neon-pulse 1.5s ease-in-out infinite;
+}
+
+/* OWO style effects */
+.owo-effect {
+  color: #ff69b4;
+  font-weight: bold;
+  animation: neon-pulse 1s ease-in-out infinite;
+}
+
+/* Amsterdam pride styling */
+.amsterdam-badge {
+  background: linear-gradient(45deg, #ff0000, #ffffff, #000000);
+  animation: signature-glow 3s ease-in-out infinite;
+}
+
+/* Studio vibes styling */
+.studio-badge {
+  background: linear-gradient(45deg, #4a90e2, #7b68ee);
+  animation: neon-pulse 2s ease-in-out infinite;
+}

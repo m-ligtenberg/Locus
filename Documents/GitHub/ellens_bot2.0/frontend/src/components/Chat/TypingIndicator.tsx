@@ -6,19 +6,46 @@ interface TypingIndicatorProps {
 
 const TypingIndicator: React.FC<TypingIndicatorProps> = ({ mood }) => {
   const getMoodMessage = (mood: string) => {
-    switch (mood) {
-      case 'chaotic':
-        return 'Ellens is chaotisch aan het typen...';
-      case 'done':
-        return 'Ellens is verveeld...';
-      case 'confused':
-        return 'Ellens is confused...';
-      case 'getting_bored':
-        return 'Ellens is getting bored...';
-      case 'chill':
-      default:
-        return 'Ellens is typing...';
-    }
+    const messages = {
+      'chaotic': [
+        'Ellens is chaotisch aan het typen... 😵‍💫',
+        'YO WACHT EFFE... typ typ typ...',
+        'Ellens heeft veel te zeggen B-Negar!',
+        'Chaos mode activated... OWO',
+        '*snuift* aan het typen...'
+      ],
+      'done': [
+        'Ellens is verveeld... 🙄',
+        'Meh... saai gesprek...',
+        'Whatever man... typ typ...',
+        'Ellens overweegt te stoppen...',
+        'Boring topic... 💤'
+      ],
+      'confused': [
+        'Ellens snapt het niet... 🤔',
+        'Eh wat? Aan het denken...',
+        'Confused... maar typing...',
+        'Wacht wat zei je? Typ typ...',
+        'Brain.exe stopped working...'
+      ],
+      'getting_bored': [
+        'Ellens wordt moe... 😴',
+        'Aandacht gaat weg... typ...',
+        'Bijna klaar met dit gesprek...',
+        'Netflix klinkt beter... maar ok',
+        'Last message misschien... 🥱'
+      ],
+      'chill': [
+        'Ellens is relaxed aan het typen... 😎',
+        'Chill mode... alleen wietje en henny',
+        'Young Ellens denkt na... B-Negar',
+        'Studio vibes terwijl ik typ... 🎵',
+        'Type type... OWO!'
+      ]
+    };
+    
+    const moodMessages = messages[mood as keyof typeof messages] || messages.chill;
+    return moodMessages[Math.floor(Math.random() * moodMessages.length)];
   };
 
   const getMoodIcon = (mood: string) => {

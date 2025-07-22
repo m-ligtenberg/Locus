@@ -75,13 +75,43 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
           )}
         </div>
         
-        {/* Denial Badge */}
-        {isEllens && (message.text.toLowerCase().includes('alleen me wietje') || 
-                      message.text.toLowerCase().includes('ik ben daar niet op')) && (
-          <div className="mt-2 inline-block">
-            <span className="bg-accent-green text-black text-xs font-bold px-2 py-1 rounded-full">
-              🚫 DENIAL MODE
-            </span>
+        {/* Special Phrase Badges */}
+        {isEllens && (
+          <div className="mt-2 flex flex-wrap gap-1">
+            {(message.text.toLowerCase().includes('alleen me wietje') || 
+              message.text.toLowerCase().includes('ik ben daar niet op')) && (
+              <span className="bg-accent-green text-black text-xs font-bold px-2 py-1 rounded-full">
+                🚫 DENIAL MODE
+              </span>
+            )}
+            
+            {message.text.toLowerCase().includes('b-negar') && (
+              <span className="bg-accent-yellow text-black text-xs font-bold px-2 py-1 rounded-full">
+                🎵 SIGNATURE AD-LIB
+              </span>
+            )}
+            
+            {message.text.toLowerCase().includes('owo') && (
+              <span className="bg-purple-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                🔥 OWO VIBES
+              </span>
+            )}
+            
+            {(message.text.toLowerCase().includes('amsterdam') || 
+              message.text.toLowerCase().includes('020') ||
+              message.text.toLowerCase().includes('damsko') ||
+              message.text.toLowerCase().includes('dammie')) && (
+              <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+                🏙️ 020 REP
+              </span>
+            )}
+            
+            {(message.text.toLowerCase().includes('studio') || 
+              message.text.toLowerCase().includes('muziek')) && (
+              <span className="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                🎤 STUDIO TALK
+              </span>
+            )}
           </div>
         )}
       </div>

@@ -2,6 +2,7 @@ import { aiService } from './aiService';
 import { PersonalityPatterns } from './personalityPatterns';
 import { contextMemory } from './contextMemory';
 import { PersonalityScoring } from './personalityScoring';
+import { contentLearning } from './contentLearning';
 
 export interface EllensPersonalityState {
   denialMode: boolean;
@@ -209,8 +210,19 @@ export class EllensPersonalityEngine {
   }
 
   private generateFallbackResponse(state: EllensPersonalityState, userMessage: string): EllensResponse {
-    // Enhanced drug denial using PersonalityPatterns
+    // Enhanced drug denial using PersonalityPatterns AND learned patterns
     if (PersonalityPatterns.containsDrugReference(userMessage)) {
+      // Try to get a learned denial response first
+      const learnedDenial = contentLearning.getEnhancedDenialResponse();
+      if (learnedDenial && Math.random() < 0.4) { // 40% chance to use learned response
+        return {
+          text: PersonalityPatterns.addEmphasis(learnedDenial, state.chaosLevel),
+          mood: 'chaotic',
+          chaosLevel: Math.min(state.chaosLevel + 20, 100)
+        };
+      }
+      
+      // Fall back to standard denial
       const denialText = PersonalityPatterns.getDenialResponse();
       return {
         text: PersonalityPatterns.addEmphasis(denialText, state.chaosLevel),
@@ -307,8 +319,14 @@ export class EllensPersonalityEngine {
     
     // Occasionally add knowledge slips for authenticity (5% chance)
     if (PersonalityPatterns.containsDrugReference(userMessage) && Math.random() < 0.05) {
-      const slip = PersonalityPatterns.getKnowledgeSlip();
-      enhanced += ` ${slip}`;
+      // Try learned knowledge slip first
+      const learnedSlip = contentLearning.getEnhancedKnowledgeSlip();
+      if (learnedSlip && Math.random() < 0.3) { // 30% chance to use learned slip
+        enhanced += ` ${learnedSlip}`;
+      } else {
+        const slip = PersonalityPatterns.getKnowledgeSlip();
+        enhanced += ` ${slip}`;
+      }
     }
     
     // Add filler expressions for authenticity (30% chance)

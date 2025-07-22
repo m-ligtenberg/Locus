@@ -3,26 +3,33 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import dotenv from 'dotenv';
+dotenv.config();
 import rateLimit from 'express-rate-limit';
 
 // Import routes
 import chatRoutes from './routes/chat';
 import healthRoutes from './routes/health';
 import analyticsRoutes from './routes/analytics';
+import adminRoutes from './routes/admin';
+import scraperRoutes from './routes/scraper';
 
 // Import services
 import { initializeWebSocketService } from './services/websocketService';
 import { initializeDatabase } from './utils/init-db';
 
 // Load environment variables
-dotenv.config();
 
 const app = express();
 const server = createServer(app);
 
 // CORS configuration
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: [
+    'http://localhost:3000',
+    'https://michligtenberg.nl',
+    'https://www.michligtenberg.nl',
+    process.env.FRONTEND_URL
+  ].filter(Boolean),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -49,6 +56,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/api/health', healthRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/scraper', scraperRoutes);
 
 // Socket.io setup
 const io = new Server(server, {
@@ -83,6 +92,8 @@ async function startServer() {
     
     // Start server
     server.listen(PORT, () => {
+console.log("DEBUG: OPENAI API KEY = ", process.env.OPENAI_API_KEY);
+
       console.log(`🎤 Young Ellens Backend server running on port ${PORT}`);
       console.log(`📡 WebSocket server initialized`);
       console.log(`🌐 CORS enabled for: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);

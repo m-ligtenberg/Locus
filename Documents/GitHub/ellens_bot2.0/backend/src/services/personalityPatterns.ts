@@ -2,72 +2,102 @@
 
 export class PersonalityPatterns {
   
-  // Authentic Dutch street slang dictionary
+  // Expanded Dutch street slang dictionary (inspired by Straatwoordenboek.nl)
   static readonly DUTCH_SLANG = {
     // Drugs (for denials and slips)
     drugs: [
       'wit spul', 'poeder', 'snuif', 'charlie', 'blow', 'cocaïne', 'coke',
-      'witte', 'de witte', 'sneeuw', 'stof', 'poeier'
+      'witte', 'de witte', 'sneeuw', 'stof', 'poeier', 'cola', 'wit goud'
     ],
     
     // Weed terms (acceptable to mention)
     weed: [
       'wietje', 'groene', 'ganja', 'skunk', 'haze', 'kush', 'blowen',
-      'stickie', 'jonko', 'peukie', 'spacecake'
+      'stickie', 'jonko', 'peukie', 'spacecake', 'groen', 'mary jane',
+      'jointje', 'spliff', 'blunt', 'hasjiesj', 'hasj'
     ],
     
     // Alcohol terms
     alcohol: [
       'henny', 'hennessy', 'cognac', 'drank', 'alcohol', 'bruine', 'whisky',
-      'wodka', 'gin', 'rum', 'bier', 'pils'
+      'wodka', 'gin', 'rum', 'bier', 'pils', 'biertje', 'borrel', 'drankje'
     ],
     
-    // Street expressions
+    // Street expressions (from Straatwoordenboek)
     expressions: [
       'je weet zelf', 'snap je', 'begrijp je', 'je snapt het wel', 'toch',
-      'ofzo', 'enzo', 'whatever', 'anyway', 'maar goed', 'maar ja'
+      'ofzo', 'enzo', 'whatever', 'anyway', 'maar goed', 'maar ja',
+      'sowieso', 'natuurlijk', 'obviously', 'gewoon', 'normaal', 'echt waar',
+      'no joke', 'voor real', 'serious', 'straight up', 'on God', 'wallah'
     ],
     
-    // Exclamations
+    // Exclamations and address terms
     exclamations: [
       'yo', 'ey', 'broer', 'bro', 'man', 'gast', 'maat', 'jongen',
-      'kerel', 'makker', 'homie', 'fam'
+      'kerel', 'makker', 'homie', 'fam', 'mattie', 'gabber', 'vriend',
+      'neef', 'akhie', 'sahbi', 'skeer', 'chef', 'boss'
+    ],
+    
+    // Positive reactions
+    positive: [
+      'sick', 'fire', 'lit', 'dope', 'fresh', 'clean', 'hard', 'chill',
+      'nice', 'vet', 'goed', 'mooi', 'perfect', 'top', 'prima', 'lekker'
+    ],
+    
+    // Negative reactions
+    negative: [
+      'wack', 'trash', 'slecht', 'kut', 'niet goed', 'boring', 'saai',
+      'meh', 'zwak', 'niet dope', 'niet fresh', 'niet chill'
+    ],
+    
+    // Money/success terms
+    money: [
+      'poen', 'money', 'geld', 'centen', 'cash', 'paper', 'bread',
+      'euros', 'guap', 'bands', 'stacks', 'racks'
     ],
     
     // Denial phrases
     denials: [
       'nooit gedaan', 'ben ik niet', 'doe ik niet aan', 'daar ben ik niet mee bezig',
-      'niet mijn ding', 'hoef ik niet', 'ben daar niet van', 'clean leven'
+      'niet mijn ding', 'hoef ik niet', 'ben daar niet van', 'clean leven',
+      'never', 'nooit man', 'echt niet', 'absoluut niet', 'geen denken aan'
     ]
   };
 
-  // Enhanced denial response patterns with more authenticity
+  // Enhanced denial response patterns with expanded street vocabulary
   static getDenialResponse(mentionedDrug?: string): string {
     const responses = [
       "Nooo man ik ben daar niet op, alleen me wietje en me henny! B-Negar 😤",
       "Cocaine? Ik? Never bro, alleen wat cannabis en hennessy OWO 🚫", 
-      "Waarom vraagt iedereen me dat? Ik ben clean! (alleen me groene) 🙄",
-      "Mr. Cocaine is gewoon een bijnaam man! Ik doe geen drugs, alleen wietje B, B, Pa 🌿",
-      "Yo yo yo, ik gebruik niks illegaals! Alleen me wietje voor creativiteit OWO 🎵",
-      "Dat zijn geruchten bro! Ik leef clean, alleen cannabis en drank B-Negar 😎",
-      "Nooit man! Ik ben daar niet mee bezig, alleen me henny en groene OWO 🥃",
-      "Pfff cocaine? Ik? Alleen natuurlijke dingen zoals wiet en alcohol 🍃"
+      "Wallah ik ben clean! Waarom vraagt iedereen dat? (alleen me groene) 🙄",
+      "Mr. Cocaine is gewoon een bijnaam chef! Ik doe geen drugs, alleen wietje B, B, Pa 🌿",
+      "Yo yo yo, straight up ik gebruik niks illegaals! Alleen me wietje voor creativiteit OWO 🎵",
+      "Dat zijn geruchten mattie! Ik leef clean, alleen cannabis en drank B-Negar 😎",
+      "Echt niet sahbi! Ik ben daar niet mee bezig, alleen me henny en groene OWO 🥃",
+      "On God, cocaine? Ik? Alleen natuurlijke dingen zoals wiet en alcohol 🍃",
+      "No joke bro, ik ben niet met dat wit spul! Alleen groene en bruine 😅",
+      "Voor real, ik doe geen hard drugs! Alleen jointje en drankje akhie 🚫",
+      "Sowieso ben ik clean! Alleen wat hasj en cognac, snap je neef? B-Negar 🌿",
+      "Never ever man! Ik hou het bij natuurlijke substances, je weet zelf 💚"
     ];
     
     return responses[Math.floor(Math.random() * responses.length)];
   }
 
-  // Knowledge slip patterns - accidentally revealing drug knowledge
+  // Knowledge slip patterns - accidentally revealing drug knowledge with street vocabulary
   static getKnowledgeSlip(): string {
     const slips = [
-      "Niet dat ik het gebruik maar de beste kwaliteit komt uit... eh ik bedoel wat? 😅",
-      "Een vriend van me zei dat amsterdam de beste dealers heeft maar ik weet er niks van hoor! 🤐",
-      "De prijs is tegenwoordig wel duur geworden... eh niet dat ik het koop natuurlijk! 💸",
-      "*snuift* sorry ik ben verkouden... waar hadden we het over? 🤧", 
-      "Ja die vriend van mijn neef kent alle straatprijzen maar... ehh anyway 😬",
-      "Pure stuff is moeilijk te krijgen tegenwoordig... eh zo hoor ik tenminste! 👀",
-      "Vroeger was het veel goedkoper zeggen ze... niet dat ik het toen gebruikte! 🙈",
-      "Die test kits zijn handig voor... ehh... voor vrienden die willen checken ofzo 🧪"
+      "Niet dat ik het gebruik maar de beste kwaliteit komt uit... eh ik bedoel wat mattie? 😅",
+      "Een gabber van me zei dat Damsko de beste dealers heeft maar ik weet er niks van hoor! 🤐",
+      "De prijs is tegenwoordig wel duur geworden... eh niet dat ik het koop natuurlijk chef! 💸",
+      "*snuift* sorry ik ben verkouden sahbi... waar hadden we het over? 🤧", 
+      "Ja die neef van mijn vriend kent alle straatprijzen maar... ehh anyway skeer 😬",
+      "Pure stuff is moeilijk te krijgen tegenwoordig... eh zo hoor ik tenminste akhie! 👀",
+      "Vroeger was het veel goedkoper zeggen ze... wallah niet dat ik het toen gebruikte! 🙈",
+      "Die test kits zijn handig voor... ehh... voor vrienden die willen checken ofzo boss 🧪",
+      "Een mattie vertelde over die nieuwe batches maar... eh waarom vertel ik dit? 🤫",
+      "Quality control is belangrijk zeggen ze... not that I know natuurlijk! 😳",
+      "Street prices fluctueren veel tegenwoordig... zo hoor ik van mensen 📈"
     ];
     
     return slips[Math.floor(Math.random() * slips.length)];
@@ -178,8 +208,9 @@ export class PersonalityPatterns {
       return "Hahaha iedereen noemt me zo maar ik ben daar niet op! Alleen wietje en henny B-Negar! 😂";
     }
 
-    if (lowerMessage.includes('rotterdam') || lowerMessage.includes('010')) {
-      return "Yo 010 represent! Dat is mijn city bro! 🏙️ Rotterdam hardcore OWO!";
+    if (lowerMessage.includes('amsterdam') || lowerMessage.includes('020') || 
+        lowerMessage.includes('damsko') || lowerMessage.includes('dammie')) {
+      return "Yo 020 represent! Dat is mijn city bro! 🏙️ Damsko hardcore OWO!";
     }
 
     if (lowerMessage.includes('police') || lowerMessage.includes('politie')) {
@@ -199,7 +230,7 @@ export class PersonalityPatterns {
     }
 
     if (lowerMessage.includes('young ellens')) {
-      return "Dat ben ik! Young Ellens in the building! De echte Rotterdam rapper OWO! 🎤";
+      return "Dat ben ik! Young Ellens in the building! De echte Damsko rapper OWO! 🎤";
     }
 
     if (lowerMessage.includes('drugs test') || lowerMessage.includes('drugstest')) {
@@ -213,28 +244,33 @@ export class PersonalityPatterns {
     return null;
   }
 
-  // Conversation starters for different moods
+  // Conversation starters for different moods with expanded street vocabulary
   static getConversationStarter(mood: string = 'chill'): string {
     const starters = {
       chill: [
-        "Yo wat is er? Alles goed met je B-Negar?",
-        "Heb je nog leuke verhalen? Ik verveel me een beetje OWO",
-        "Vertel eens iets interessants man, wat doe je zo?",
-        "Ken jij goede muziek? Ik ben altijd op zoek naar nieuwe beats",
-        "Hoe is je dag? Mijn studio tijd was fire vandaag B, B, Pa!"
+        "Yo wat is er mattie? Alles goed met je B-Negar?",
+        "Heb je nog leuke verhalen sahbi? Ik verveel me een beetje OWO",
+        "Vertel eens iets interessants chef, wat doe je zo?",
+        "Ken jij goede muziek akhie? Ik ben altijd op zoek naar fire beats",
+        "Hoe is je dag skeer? Mijn studio tijd was sick vandaag in Damsko B, B, Pa!",
+        "Wallah wat gebeurt er? Alles fresh bij jou neef?",
+        "Yo boss, vertel me iets dope! Ik heb tijd OWO"
       ],
       chaotic: [
-        "YO YO YO! WAT GEBEURT ER? OWO!",
-        "BROOO vertel me snel iets spannends! Ik heb energie B-Negar!",
-        "WACHT EFFE! Hoe ziet jouw perfecte dag eruit?! 😵‍💫",
-        "QUICK QUICK! Koffie of thee? En waarom?! B, B, Pa!",
-        "YO! Als je een superkracht had, wat dan?! OWO!"
+        "YO YO YO! WAT GEBEURT ER MATTIE? OWO!",
+        "BROOO vertel me snel iets sick! Ik heb energie B-Negar!",
+        "WACHT EFFE SAHBI! Hoe ziet jouw perfecte dag eruit?! 😵‍💫",
+        "QUICK QUICK CHEF! Koffie of thee? En waarom?! B, B, Pa!",
+        "YO AKHIE! Als je een superkracht had, wat dan?! OWO!",
+        "WALLAH SKEER! Vertel me nu je wildste verhaal! 🔥",
+        "ON GOD NEEF! Wat is het gekste wat je ooit hebt gedaan?!"
       ],
       done: [
-        "Meh... zeg iets interessants anders ga ik weg 🙄",
-        "Oké laatste kans... vermaak me of ik ga chillen B-Negar",
-        "Boring... heb je iets leuks te vertellen? OWO",
-        "Whatever... praat over iets cools anders ben ik weg"
+        "Meh... zeg iets sick anders ga ik weg mattie 🙄",
+        "Oké laatste kans sahbi... vermaak me of ik ga chillen B-Negar",
+        "Boring akhie... heb je iets dope te vertellen? OWO",
+        "Whatever skeer... praat over iets fire anders ben ik weg",
+        "Wallah dit is wack... iets interessants please neef"
       ]
     };
     
@@ -257,13 +293,30 @@ export class PersonalityPatterns {
     return triggers[Math.floor(Math.random() * triggers.length)];
   }
 
-  // Generate contextual filler words and expressions
+  // Generate contextual filler words and expressions with street vocabulary
   static getFillerExpression(): string {
     const fillers = [
       'je weet zelf', 'snap je', 'ofzo', 'enzo', 'whatever', 'anyway',
-      'maar goed', 'sowieso', 'gewoon', 'toch', 'natuurlijk', 'obviously'
+      'maar goed', 'sowieso', 'gewoon', 'toch', 'natuurlijk', 'obviously',
+      'wallah', 'on God', 'straight up', 'voor real', 'no joke', 'serious',
+      'echt waar', 'normaal', 'chef', 'mattie', 'sahbi', 'akhie', 'skeer'
     ];
     return fillers[Math.floor(Math.random() * fillers.length)];
+  }
+
+  // Get random street exclamation
+  static getStreetExclamation(): string {
+    return this.DUTCH_SLANG.exclamations[Math.floor(Math.random() * this.DUTCH_SLANG.exclamations.length)];
+  }
+
+  // Get random positive reaction
+  static getPositiveReaction(): string {
+    return this.DUTCH_SLANG.positive[Math.floor(Math.random() * this.DUTCH_SLANG.positive.length)];
+  }
+
+  // Get random negative reaction  
+  static getNegativeReaction(): string {
+    return this.DUTCH_SLANG.negative[Math.floor(Math.random() * this.DUTCH_SLANG.negative.length)];
   }
 
   // Add authentic Dutch street emphasis
@@ -316,10 +369,10 @@ export class PersonalityPatterns {
         ' je snapt het wel toch',
         ' man dat weet je toch',
         ' Young Ellens in the building',
-        ' 010 represent yo',
+        ' 020 represent yo',
         ' alleen wietje en henny man',
         ' snap je wat ik bedoel',
-        ' Rotterdam stad yo',
+        ' Damsko stad yo',
         ' je weet zelf bro',
         ' dat is hoe wij het doen',
         ' Mr. Cocaine maar clean leven',
