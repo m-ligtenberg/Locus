@@ -3,6 +3,7 @@ import * as cheerio from 'cheerio';
 import { webScraper, ScrapedContent } from './webScraper';
 import { contentLearning } from './contentLearning';
 import { translationService } from './translationService';
+import { mlPatternOptimizer } from './mlPatternOptimizer';
 
 export interface ContentSource {
   id: string;
@@ -207,7 +208,13 @@ export class AdvancedScraperService {
   }
 
   private startSourceMonitoring(source: ContentSource): void {
-    const intervalMs = source.configuration.updateFrequency * 60 * 1000;
+    // Use ML-optimized frequency
+    const baseFrequency = source.configuration.updateFrequency;
+    const optimizedFrequency = mlPatternOptimizer.optimizeSourceFrequency(source.id);
+    const intervalMs = optimizedFrequency * 60 * 1000;
+    
+    // Update source configuration with optimized frequency
+    source.configuration.updateFrequency = optimizedFrequency;
     
     // Initial check
     this.checkContentSource(source);
@@ -218,7 +225,7 @@ export class AdvancedScraperService {
     }, intervalMs);
 
     this.monitoringIntervals.set(source.id, interval);
-    console.log(`⏰ Started monitoring: ${source.name} (every ${source.configuration.updateFrequency} minutes)`);
+    console.log(`⏰ Started monitoring: ${source.name} (optimized: every ${optimizedFrequency} minutes, was ${baseFrequency})`);
   }
 
   private async checkContentSource(source: ContentSource): Promise<void> {
@@ -262,9 +269,18 @@ export class AdvancedScraperService {
         }
       }
 
-      // Update source statistics
+      // Update source statistics and ML performance data
       source.lastChecked = new Date().toISOString();
       source.itemsFound = (source.itemsFound || 0) + newContent.length;
+      
+      // Update ML source performance
+      mlPatternOptimizer.updateSourcePerformance(source.id, source.name, {
+        totalAttempts: (source.itemsFound || 0) + 1,
+        successfulIntegrations: qualifiedContent.length,
+        avgQualityScore: qualifiedContent.length > 0 
+          ? qualifiedContent.reduce((sum, c) => sum + c.qualityScore.overallScore, 0) / qualifiedContent.length
+          : 0
+      });
       
     } catch (error) {
       console.error(`❌ Failed to check source ${source.name}:`, error);
@@ -272,6 +288,12 @@ export class AdvancedScraperService {
       // Update failure rate
       const currentRate = source.successRate || 100;
       source.successRate = Math.max(0, currentRate - 5); // Decrease success rate
+      
+      // Update ML performance with failure
+      mlPatternOptimizer.updateSourcePerformance(source.id, source.name, {
+        totalAttempts: (source.itemsFound || 0) + 1,
+        successfulIntegrations: 0
+      });
     }
   }
 
@@ -713,9 +735,20 @@ export class AdvancedScraperService {
     const filtered: AdvancedScrapedContent[] = [];
     
     for (const item of content) {
-      // Quality filter - only accept content with score > 50
-      if (item.qualityScore.overallScore < 50) {
-        console.log(`⚠️ Filtered low-quality content: ${item.title} (score: ${item.qualityScore.overallScore})`);
+      // Use ML-enhanced quality prediction
+      const source = this.contentSources.find(s => s.name === item.source);
+      if (source) {
+        const mlPredictedQuality = mlPatternOptimizer.predictContentQuality(item, source);
+        
+        // Blend ML prediction with original score
+        const finalQualityScore = (item.qualityScore.overallScore * 0.6) + (mlPredictedQuality * 0.4);
+        item.qualityScore.overallScore = Math.round(finalQualityScore);
+      }
+      
+      // Quality filter - use dynamic threshold based on ML insights
+      const qualityThreshold = this.getDynamicQualityThreshold();
+      if (item.qualityScore.overallScore < qualityThreshold) {
+        console.log(`⚠️ Filtered low-quality content: ${item.title} (score: ${item.qualityScore.overallScore}, threshold: ${qualityThreshold})`);
         continue;
       }
       
@@ -809,6 +842,38 @@ export class AdvancedScraperService {
     }
   }
 
+  private getDynamicQualityThreshold(): number {
+    // Get ML insights to determine optimal quality threshold
+    const mlInsights = mlPatternOptimizer.getMLInsights();
+    
+    // Base threshold
+    let threshold = 50;
+    
+    // Adjust based on recent performance
+    if (mlInsights.dataStats.avgEngagementScore > 0.7) {
+      // Users are engaging well, can be more selective
+      threshold = 60;
+    } else if (mlInsights.dataStats.avgEngagementScore < 0.3) {
+      // Poor engagement, be less selective to get more content
+      threshold = 40;
+    }
+    
+    // Adjust based on content availability
+    const recentContentCount = this.discoveredContent.filter(c => 
+      Date.now() - new Date(c.timestamp).getTime() < 24 * 60 * 60 * 1000
+    ).length;
+    
+    if (recentContentCount < 5) {
+      // Need more content, lower threshold
+      threshold = Math.max(30, threshold - 10);
+    } else if (recentContentCount > 20) {
+      // Plenty of content, can be more selective
+      threshold = Math.min(80, threshold + 10);
+    }
+    
+    return threshold;
+  }
+
   // Public API methods
   public getContentSources(): ContentSource[] {
     return [...this.contentSources];
@@ -855,6 +920,8 @@ export class AdvancedScraperService {
   }
 
   public getMonitoringStats(): any {
+    const mlInsights = mlPatternOptimizer.getMLInsights();
+    
     return {
       isMonitoring: this.isMonitoring,
       totalSources: this.contentSources.length,
@@ -865,6 +932,7 @@ export class AdvancedScraperService {
       averageQualityScore: this.discoveredContent.length > 0 
         ? Math.round(this.discoveredContent.reduce((sum, c) => sum + c.qualityScore.overallScore, 0) / this.discoveredContent.length)
         : 0,
+      currentQualityThreshold: this.getDynamicQualityThreshold(),
       sources: this.contentSources.map(source => ({
         id: source.id,
         name: source.name,
@@ -872,8 +940,14 @@ export class AdvancedScraperService {
         enabled: source.enabled,
         lastChecked: source.lastChecked,
         itemsFound: source.itemsFound || 0,
-        successRate: source.successRate || 100
-      }))
+        successRate: source.successRate || 100,
+        optimizedFrequency: source.configuration.updateFrequency
+      })),
+      mlInsights: {
+        modelsStatus: mlInsights.modelsStatus,
+        topPatterns: mlInsights.topPatterns,
+        dataStats: mlInsights.dataStats
+      }
     };
   }
 }

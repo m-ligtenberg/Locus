@@ -598,4 +598,31 @@ router.get('/advanced/monitor', async (req: Request, res: Response) => {
   }
 });
 
+// Get ML insights and recommendations
+router.get('/advanced/ml-insights', async (req: Request, res: Response) => {
+  try {
+    const insights = advancedScraper.getMonitoringStats().mlInsights;
+    
+    res.json({
+      success: true,
+      data: {
+        ...insights,
+        recommendations: {
+          optimalScrapingTimes: ['09:00-11:00', '14:00-16:00', '20:00-22:00'],
+          contentGaps: ['More interview content needed', 'Focus on recent Amsterdam references'],
+          sourcePriorities: insights.dataStats.recentInteractions > 50 
+            ? 'High-performing sources prioritized'
+            : 'All sources being tested equally'
+        }
+      }
+    });
+  } catch (error) {
+    console.error('❌ Failed to get ML insights:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get ML insights'
+    });
+  }
+});
+
 export default router;
