@@ -2,6 +2,7 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { webScraper, ScrapedContent } from './webScraper';
 import { contentLearning } from './contentLearning';
+import { translationService } from './translationService';
 
 export interface ContentSource {
   id: string;
@@ -253,6 +254,9 @@ export class AdvancedScraperService {
         if (qualifiedContent.length > 0) {
           this.discoveredContent.push(...qualifiedContent);
           
+          // Broadcast new content discovery to admin panels
+          this.broadcastContentDiscovery(qualifiedContent, source.name);
+          
           // Auto-integrate high-quality content
           await this.autoIntegrateContent(qualifiedContent);
         }
@@ -296,7 +300,7 @@ export class AdvancedScraperService {
         );
         
         if (hasKeyword) {
-          const content = this.createAdvancedContent({
+          const content = await this.createAdvancedContent({
             title: `RSS: ${title}`,
             content: description,
             source: source.name,
@@ -342,7 +346,7 @@ export class AdvancedScraperService {
         const response = await axios.get(source.url, { params });
         
         for (const item of response.data.items || []) {
-          const content = this.createAdvancedContent({
+          const content = await this.createAdvancedContent({
             title: `YouTube: ${item.snippet.title}`,
             content: item.snippet.description,
             source: 'YouTube API',
@@ -415,7 +419,7 @@ export class AdvancedScraperService {
             const postData = post.data;
             
             if (this.isYoungEllensContent(postData.title + ' ' + postData.selftext)) {
-              const content = this.createAdvancedContent({
+              const content = await this.createAdvancedContent({
                 title: `Reddit: ${postData.title}`,
                 content: postData.selftext || postData.title,
                 source: 'Reddit',
@@ -467,7 +471,7 @@ export class AdvancedScraperService {
           const description = $(element).find('.sound__description, .truncatedAudioInfo__content').text().trim();
           
           if (this.isYoungEllensContent(`${title} ${artist} ${description}`)) {
-            const content = this.createAdvancedContent({
+            const content = await this.createAdvancedContent({
               title: `SoundCloud: ${title}`,
               content: description || title,
               source: 'SoundCloud',
@@ -492,12 +496,25 @@ export class AdvancedScraperService {
     return results;
   }
 
-  private createAdvancedContent(basicContent: Omit<ScrapedContent, 'metadata'> & { metadata?: any }): AdvancedScrapedContent {
+  private async createAdvancedContent(basicContent: Omit<ScrapedContent, 'metadata'> & { metadata?: any }): Promise<AdvancedScrapedContent> {
     const qualityScore = this.calculateQualityScore(basicContent);
     const similarityHash = this.generateSimilarityHash(basicContent.content);
     const extractedEntities = this.extractEntities(basicContent.content);
     const sentiment = this.analyzeSentiment(basicContent.content);
     const language = this.detectLanguage(basicContent.content);
+    
+    // Auto-translate non-Dutch content to Dutch
+    let translatedContent = undefined;
+    if (translationService.needsTranslation(basicContent.content, 'nl')) {
+      try {
+        const translation = await translationService.translateContent(basicContent.content, 'nl', language);
+        if (translation.confidence > 0.5) {
+          translatedContent = translation.translatedText;
+        }
+      } catch (error) {
+        console.error(`Translation failed for content from ${basicContent.source}:`, error);
+      }
+    }
     
     return {
       ...basicContent,
@@ -506,6 +523,7 @@ export class AdvancedScraperService {
       extractedEntities,
       sentiment,
       language,
+      translatedContent,
       metadata: basicContent.metadata || {}
     };
   }
@@ -769,6 +787,26 @@ export class AdvancedScraperService {
     // Queue URL for detailed scraping
     console.log(`📋 Queued for detailed scraping: ${url} (${type})`);
     // This would be implemented with a proper job queue system
+  }
+
+  private broadcastContentDiscovery(content: AdvancedScrapedContent[], sourceName: string): void {
+    // Broadcast to admin panels via WebSocket
+    const broadcastFunc = (global as any).broadcastToAdmins;
+    if (broadcastFunc && typeof broadcastFunc === 'function') {
+      broadcastFunc('content_discovered', {
+        sourceName,
+        contentCount: content.length,
+        content: content.slice(0, 5).map(item => ({
+          title: item.title,
+          source: item.source,
+          qualityScore: item.qualityScore.overallScore,
+          sentiment: item.sentiment,
+          timestamp: item.timestamp
+        })),
+        totalQualityContent: this.discoveredContent.filter(c => c.qualityScore.overallScore > 80).length,
+        timestamp: new Date().toISOString()
+      });
+    }
   }
 
   // Public API methods

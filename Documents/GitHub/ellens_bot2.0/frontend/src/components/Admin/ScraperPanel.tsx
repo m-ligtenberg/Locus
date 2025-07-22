@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useScraperWebSocket } from '../../hooks/useScraperWebSocket';
 
 interface ScrapingTarget {
   name: string;
@@ -50,6 +51,25 @@ const ScraperPanel: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'targets' | 'advanced' | 'schedule' | 'manual'>('overview');
   const [advancedContent, setAdvancedContent] = useState<any[]>([]);
+  const [isWebSocketConnected, setIsWebSocketConnected] = useState(false);
+  const [recentDiscoveries, setRecentDiscoveries] = useState<any[]>([]);
+
+  // WebSocket hook for real-time updates
+  const {
+    isConnected,
+    stats: wsStats,
+    recentDiscoveries: wsDiscoveries,
+    connectToScraper,
+    disconnectFromScraper
+  } = useScraperWebSocket(
+    (newStats) => {
+      setStats(newStats as ScraperStats);
+      setIsWebSocketConnected(true);
+    },
+    (discovery) => {
+      setRecentDiscoveries(prev => [discovery, ...prev.slice(0, 9)]);
+    }
+  );
   
   // Form states
   const [newTarget, setNewTarget] = useState({
@@ -65,13 +85,16 @@ const ScraperPanel: React.FC = () => {
   });
 
   useEffect(() => {
+    // Load initial stats via HTTP
     loadScraperStats();
     
-    // Set up real-time monitoring updates every 10 seconds
-    const interval = setInterval(loadScraperStats, 10000);
+    // Connect to WebSocket for real-time updates
+    connectToScraper();
     
-    return () => clearInterval(interval);
-  }, []);
+    return () => {
+      disconnectFromScraper();
+    };
+  }, [connectToScraper, disconnectFromScraper]);
 
   const loadScraperStats = async () => {
     try {
@@ -274,12 +297,24 @@ const ScraperPanel: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="bg-gray-800 p-4 rounded-lg">
-        <h3 className="text-lg font-bold text-accent-yellow mb-4">
-          🕷️ Web Scraper & Content Crawler
-        </h3>
-        <p className="text-gray-300 mb-4">
-          Automatically discover and collect Young Ellens content from across the web to enhance the chatbot's personality.
-        </p>
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h3 className="text-lg font-bold text-accent-yellow">
+              🕷️ Web Scraper & Content Crawler
+            </h3>
+            <p className="text-gray-300 mt-2">
+              Automatically discover and collect Young Ellens content from across the web to enhance the chatbot's personality.
+            </p>
+          </div>
+          
+          {/* Connection Status */}
+          <div className="flex items-center space-x-2">
+            <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-500'}`}></div>
+            <span className="text-sm text-gray-400">
+              {isConnected ? 'Live Updates' : 'Offline'}
+            </span>
+          </div>
+        </div>
         
         {/* Tab Navigation */}
         <div className="flex space-x-4 mb-6 overflow-x-auto">
@@ -431,6 +466,47 @@ const ScraperPanel: React.FC = () => {
                 )}
               </div>
             </div>
+
+            {/* Real-time Content Discoveries */}
+            {recentDiscoveries.length > 0 && (
+              <div className="bg-gray-700 p-4 rounded">
+                <h4 className="font-semibold text-white mb-3">🎯 Recent Discoveries ({recentDiscoveries.length})</h4>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {recentDiscoveries.slice(0, 5).map((discovery: any, index: number) => (
+                    <div key={index} className="bg-gray-600 p-3 rounded">
+                      <div className="flex justify-between items-start mb-1">
+                        <span className="text-sm font-medium text-white">{discovery.sourceName}</span>
+                        <span className="text-xs text-gray-400">
+                          {new Date(discovery.timestamp).toLocaleTimeString()}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-300 mb-2">
+                        Found {discovery.contentCount} items • {discovery.totalQualityContent} high quality
+                      </p>
+                      {discovery.content.slice(0, 2).map((item: any, i: number) => (
+                        <div key={i} className="bg-gray-800 p-2 rounded mb-1 last:mb-0">
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs text-white truncate flex-1">{item.title}</span>
+                            <div className="flex items-center space-x-1 ml-2">
+                              <span className="text-xs bg-purple-600 text-white px-1 py-0.5 rounded">
+                                {item.qualityScore}
+                              </span>
+                              <span className={`text-xs px-1 py-0.5 rounded ${
+                                item.sentiment === 'positive' ? 'bg-green-600 text-white' :
+                                item.sentiment === 'negative' ? 'bg-red-600 text-white' :
+                                'bg-gray-600 text-gray-300'
+                              }`}>
+                                {item.sentiment}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

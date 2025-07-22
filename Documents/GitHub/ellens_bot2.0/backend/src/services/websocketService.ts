@@ -1,6 +1,8 @@
 import { Server, Socket } from 'socket.io';
 import { EllensPersonalityEngine } from './personalityEngine';
 import { chatPersistence } from './chatPersistenceService';
+import { advancedScraper } from './advancedScraper';
+import { webScraper } from './webScraper';
 import { v4 as uuidv4 } from 'uuid';
 
 interface SocketUser {
@@ -24,6 +26,7 @@ interface ChatMessage {
 export function initializeWebSocketService(io: Server): void {
   const personalityEngine = new EllensPersonalityEngine();
   const connectedUsers = new Map<string, SocketUser>();
+  const adminSockets = new Set<string>(); // Track admin panel connections
 
   io.on('connection', async (socket: Socket) => {
     console.log(`🔌 User connected: ${socket.id}`);
@@ -231,7 +234,55 @@ export function initializeWebSocketService(io: Server): void {
         console.error('Failed to end persistent session:', error);
       }
       
+      // Clean up both user and admin connections
       connectedUsers.delete(socket.id);
+      adminSockets.delete(socket.id);
+    });
+
+    // Admin panel WebSocket events
+    socket.on('join_admin', () => {
+      adminSockets.add(socket.id);
+      console.log(`👨‍💼 Admin joined: ${socket.id}`);
+      
+      // Send initial scraper stats
+      const basicStats = webScraper.getScrapingStats();
+      const advancedStats = advancedScraper.getMonitoringStats();
+      
+      socket.emit('scraper_stats_update', {
+        basic: basicStats,
+        advanced: {
+          ...advancedStats,
+          contentSources: advancedStats.sources.length,
+          highQualityRate: advancedStats.totalContentFound > 0 
+            ? Math.round((advancedStats.highQualityContent / advancedStats.totalContentFound) * 100) 
+            : 0
+        },
+        timestamp: new Date().toISOString()
+      });
+    });
+
+    socket.on('leave_admin', () => {
+      adminSockets.delete(socket.id);
+      console.log(`👨‍💼 Admin left: ${socket.id}`);
+    });
+
+    socket.on('request_scraper_update', () => {
+      if (adminSockets.has(socket.id)) {
+        const basicStats = webScraper.getScrapingStats();
+        const advancedStats = advancedScraper.getMonitoringStats();
+        
+        socket.emit('scraper_stats_update', {
+          basic: basicStats,
+          advanced: {
+            ...advancedStats,
+            contentSources: advancedStats.sources.length,
+            highQualityRate: advancedStats.totalContentFound > 0 
+              ? Math.round((advancedStats.highQualityContent / advancedStats.totalContentFound) * 100) 
+              : 0
+          },
+          timestamp: new Date().toISOString()
+        });
+      }
     });
 
     // Handle connection errors
@@ -263,6 +314,47 @@ export function initializeWebSocketService(io: Server): void {
       console.log(`🧹 Cleaned up ${cleanedCount} inactive persistent sessions`);
     }
   }, 5 * 60 * 1000); // Check every 5 minutes
+
+  // Broadcast scraper updates to admin panels every 15 seconds
+  setInterval(() => {
+    if (adminSockets.size > 0) {
+      const basicStats = webScraper.getScrapingStats();
+      const advancedStats = advancedScraper.getMonitoringStats();
+      
+      const updateData = {
+        basic: basicStats,
+        advanced: {
+          ...advancedStats,
+          contentSources: advancedStats.sources.length,
+          highQualityRate: advancedStats.totalContentFound > 0 
+            ? Math.round((advancedStats.highQualityContent / advancedStats.totalContentFound) * 100) 
+            : 0
+        },
+        timestamp: new Date().toISOString()
+      };
+
+      // Broadcast to all admin connections
+      adminSockets.forEach(socketId => {
+        const socket = io.sockets.sockets.get(socketId);
+        if (socket) {
+          socket.emit('scraper_stats_update', updateData);
+        } else {
+          // Clean up invalid socket references
+          adminSockets.delete(socketId);
+        }
+      });
+    }
+  }, 15000); // Every 15 seconds
+
+  // Export broadcast function for external use
+  (global as any).broadcastToAdmins = (eventName: string, data: any) => {
+    adminSockets.forEach(socketId => {
+      const socket = io.sockets.sockets.get(socketId);
+      if (socket) {
+        socket.emit(eventName, data);
+      }
+    });
+  };
 
   console.log('🚀 WebSocket service initialized successfully');
 }
