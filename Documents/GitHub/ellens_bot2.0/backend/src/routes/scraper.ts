@@ -25,6 +25,7 @@ router.post('/start', async (req: Request, res: Response) => {
         timestamp: new Date().toISOString()
       }
     });
+    return;
   } catch (error) {
     console.error('❌ Manual scraping failed:', error);
     res.status(500).json({
@@ -58,6 +59,7 @@ router.get('/status', async (req: Request, res: Response) => {
         }
       }
     });
+    return;
   } catch (error) {
     console.error('❌ Failed to get scraper status:', error);
     res.status(500).json({
@@ -80,6 +82,7 @@ router.get('/targets', async (req: Request, res: Response) => {
         enabled: stats.enabledTargets
       }
     });
+    return;
   } catch (error) {
     console.error('❌ Failed to get scraping targets:', error);
     res.status(500).json({
@@ -119,12 +122,14 @@ router.post('/targets', async (req: Request, res: Response) => {
       message: `Added scraping target: ${name}`,
       data: newTarget
     });
+    return;
   } catch (error) {
     console.error('❌ Failed to add scraping target:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to add scraping target'
     });
+    return;
   }
 });
 
@@ -147,6 +152,7 @@ router.patch('/targets/:name', async (req: Request, res: Response) => {
       success: true,
       message: `${enabled ? 'Enabled' : 'Disabled'} scraping target: ${name}`
     });
+    return;
   } catch (error) {
     console.error('❌ Failed to toggle scraping target:', error);
     res.status(500).json({
@@ -154,6 +160,7 @@ router.patch('/targets/:name', async (req: Request, res: Response) => {
       message: 'Failed to toggle scraping target'
     });
   }
+  return;
 });
 
 // Remove scraping target
@@ -167,6 +174,7 @@ router.delete('/targets/:name', async (req: Request, res: Response) => {
       success: true,
       message: `Removed scraping target: ${name}`
     });
+    return;
   } catch (error) {
     console.error('❌ Failed to remove scraping target:', error);
     res.status(500).json({
@@ -174,6 +182,7 @@ router.delete('/targets/:name', async (req: Request, res: Response) => {
       message: 'Failed to remove scraping target'
     });
   }
+  return;
 });
 
 // Schedule automated scraping
@@ -230,6 +239,7 @@ router.post('/schedule', async (req: Request, res: Response) => {
         isRunning: true
       }
     });
+    return;
   } catch (error) {
     console.error('❌ Failed to schedule scraping:', error);
     res.status(500).json({
@@ -237,6 +247,7 @@ router.post('/schedule', async (req: Request, res: Response) => {
       message: 'Failed to schedule scraping'
     });
   }
+  return;
 });
 
 // Get scheduled jobs
@@ -244,7 +255,7 @@ router.get('/schedule', async (req: Request, res: Response) => {
   try {
     const jobs = Array.from(scheduledJobs.entries()).map(([name, task]) => ({
       name,
-      isRunning: task.isRunning(),
+      isRunning: true, // Assume running if it exists in the map
       nextRun: 'Unknown' // cron package doesn't provide next run time easily
     }));
     
@@ -255,6 +266,7 @@ router.get('/schedule', async (req: Request, res: Response) => {
         total: jobs.length
       }
     });
+    return;
   } catch (error) {
     console.error('❌ Failed to get scheduled jobs:', error);
     res.status(500).json({
@@ -262,6 +274,7 @@ router.get('/schedule', async (req: Request, res: Response) => {
       message: 'Failed to get scheduled jobs'
     });
   }
+  return;
 });
 
 // Stop scheduled job
@@ -293,6 +306,7 @@ router.delete('/schedule/:name', async (req: Request, res: Response) => {
       message: 'Failed to stop scheduled job'
     });
   }
+  return;
 });
 
 // Specific scraping endpoints
@@ -318,6 +332,7 @@ router.post('/youtube', async (req: Request, res: Response) => {
       success: false,
       message: 'YouTube scraping failed'
     });
+    return;
   }
 });
 
@@ -341,6 +356,7 @@ router.post('/lyrics', async (req: Request, res: Response) => {
       success: false,
       message: 'Lyrics scraping failed'
     });
+    return;
   }
 });
 
@@ -364,6 +380,7 @@ router.post('/social', async (req: Request, res: Response) => {
       success: false,
       message: 'Social media scraping failed'
     });
+    return;
   }
 });
 
@@ -406,6 +423,7 @@ router.post('/test-url', async (req: Request, res: Response) => {
       message: 'URL test scraping failed'
     });
   }
+  return;
 });
 
 // Advanced scraper endpoints
@@ -427,6 +445,7 @@ router.post('/advanced/start', async (req: Request, res: Response) => {
       message: 'Failed to start advanced monitoring'
     });
   }
+  return;
 });
 
 // Stop advanced monitoring
@@ -444,6 +463,7 @@ router.post('/advanced/stop', async (req: Request, res: Response) => {
       success: false,
       message: 'Failed to stop advanced monitoring'
     });
+    return;
   }
 });
 
@@ -466,6 +486,7 @@ router.get('/advanced/sources', async (req: Request, res: Response) => {
       success: false,
       message: 'Failed to get content sources'
     });
+    return;
   }
 });
 
@@ -496,12 +517,14 @@ router.patch('/advanced/sources/:sourceId', async (req: Request, res: Response) 
       message: `Content source ${enabled ? 'enabled' : 'disabled'}`,
       data: advancedScraper.getMonitoringStats()
     });
+    return;
   } catch (error) {
     console.error('❌ Failed to toggle content source:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to toggle content source'
     });
+    return;
   }
 });
 
@@ -545,6 +568,7 @@ router.post('/advanced/sources', async (req: Request, res: Response) => {
       message: 'Failed to add content source'
     });
   }
+  return;
 });
 
 // Get discovered content
@@ -572,6 +596,7 @@ router.get('/advanced/content', async (req: Request, res: Response) => {
       success: false,
       message: 'Failed to get discovered content'
     });
+    return;
   }
 });
 
@@ -595,6 +620,7 @@ router.get('/advanced/monitor', async (req: Request, res: Response) => {
       success: false,
       message: 'Failed to get monitoring stats'
     });
+    return;
   }
 });
 
@@ -622,6 +648,7 @@ router.get('/advanced/ml-insights', async (req: Request, res: Response) => {
       success: false,
       message: 'Failed to get ML insights'
     });
+    return;
   }
 });
 

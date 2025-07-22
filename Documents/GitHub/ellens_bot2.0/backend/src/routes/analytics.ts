@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { EllensPersonalityEngine } from '../services/personalityEngine';
 import { contextMemory } from '../services/contextMemory';
 
@@ -93,6 +93,7 @@ router.get('/dashboard', async (req, res) => {
     };
 
     res.json(analytics);
+    return;
 
   } catch (error) {
     console.error('Error generating analytics:', error);
@@ -104,7 +105,7 @@ router.get('/dashboard', async (req, res) => {
 });
 
 // GET /api/analytics/personality/:conversationId - Specific conversation analytics
-router.get('/personality/:conversationId', async (req, res) => {
+router.get('/personality/:conversationId', async (req: Request, res: Response) => {
   try {
     const { conversationId } = req.params;
     
@@ -130,20 +131,22 @@ router.get('/personality/:conversationId', async (req, res) => {
       },
       context: contextInsights,
       insights: {
-        personalityConsistency: this.calculatePersonalityConsistency(conversationState, contextInsights),
-        engagementScore: this.calculateEngagementScore(contextInsights),
-        conversationHealth: this.assessConversationHealth(conversationState, contextInsights)
+        personalityConsistency: calculatePersonalityConsistency(conversationState, contextInsights),
+        engagementScore: calculateEngagementScore(contextInsights),
+        conversationHealth: assessConversationHealth(conversationState, contextInsights)
       },
       timestamp: new Date().toISOString()
     };
 
     res.json(analysis);
+    return;
 
   } catch (error) {
     console.error('Error getting conversation analytics:', error);
     res.status(500).json({
       error: 'Failed to get conversation analytics'
     });
+    return;
   }
 });
 

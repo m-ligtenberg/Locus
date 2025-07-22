@@ -252,11 +252,13 @@ export class AdvancedScraperService {
           break;
       }
 
+      let qualifiedContent: AdvancedScrapedContent[] = [];
+      
       if (newContent.length > 0) {
         console.log(`✅ Found ${newContent.length} new items from ${source.name}`);
         
         // Process and filter content
-        const qualifiedContent = await this.processAndFilterContent(newContent);
+        qualifiedContent = await this.processAndFilterContent(newContent);
         
         if (qualifiedContent.length > 0) {
           this.discoveredContent.push(...qualifiedContent);
@@ -274,13 +276,13 @@ export class AdvancedScraperService {
       source.itemsFound = (source.itemsFound || 0) + newContent.length;
       
       // Update ML source performance
-      mlPatternOptimizer.updateSourcePerformance(source.id, source.name, {
-        totalAttempts: (source.itemsFound || 0) + 1,
-        successfulIntegrations: qualifiedContent.length,
-        avgQualityScore: qualifiedContent.length > 0 
-          ? qualifiedContent.reduce((sum, c) => sum + c.qualityScore.overallScore, 0) / qualifiedContent.length
-          : 0
-      });
+      if (qualifiedContent.length > 0) {
+        mlPatternOptimizer.updateSourcePerformance(source.id, source.name, {
+          totalAttempts: (source.itemsFound || 0) + 1,
+          successfulIntegrations: qualifiedContent.length,
+          avgQualityScore: qualifiedContent.reduce((sum: number, c: any) => sum + c.qualityScore.overallScore, 0) / qualifiedContent.length
+        });
+      }
       
     } catch (error) {
       console.error(`❌ Failed to check source ${source.name}:`, error);
@@ -309,7 +311,8 @@ export class AdvancedScraperService {
       
       const $ = cheerio.load(response.data, { xmlMode: true });
       
-      $('item').each((i, element) => {
+      const items = $('item').toArray();
+      for (const element of items) {
         const title = $(element).find('title').text();
         const description = $(element).find('description').text();
         const link = $(element).find('link').text();
@@ -337,7 +340,7 @@ export class AdvancedScraperService {
           
           results.push(content);
         }
-      });
+      }
       
     } catch (error) {
       console.error(`Failed to scrape RSS feed ${source.name}:`, error);
@@ -487,7 +490,8 @@ export class AdvancedScraperService {
         const $ = cheerio.load(response.data);
         
         // Look for Young Ellens tracks
-        $('.searchList__item, .sound__item').each((i, element) => {
+        const soundItems = $('.searchList__item, .sound__item').toArray();
+        for (const element of soundItems) {
           const title = $(element).find('.soundTitle__title, h2').text().trim();
           const artist = $(element).find('.soundTitle__username, .soundBadge__title').text().trim();
           const description = $(element).find('.sound__description, .truncatedAudioInfo__content').text().trim();
@@ -508,7 +512,7 @@ export class AdvancedScraperService {
             
             results.push(content);
           }
-        });
+        }
       }
       
     } catch (error) {
@@ -657,11 +661,11 @@ export class AdvancedScraperService {
   private extractEntities(content: string): AdvancedScrapedContent['extractedEntities'] {
     const lowerContent = content.toLowerCase();
     
-    const people = [];
-    const places = [];
-    const events = [];
-    const drugReferences = [];
-    const musicTerms = [];
+    const people: string[] = [];
+    const places: string[] = [];
+    const events: string[] = [];
+    const drugReferences: string[] = [];
+    const musicTerms: string[] = [];
 
     // Extract people (basic pattern matching)
     const peoplePatterns = ['young ellens', 'mr cocaine', 'ellens', 'dj', 'rapper', 'artist'];

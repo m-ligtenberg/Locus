@@ -437,6 +437,7 @@ export class WebScraperService {
             }
           });
         }
+        return true; // Continue iteration
       });
 
       return results;

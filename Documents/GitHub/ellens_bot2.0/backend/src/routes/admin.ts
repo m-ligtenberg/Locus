@@ -61,9 +61,11 @@ router.post('/content/upload', async (req: Request, res: Response) => {
       content: newContent,
       message: 'Content uploaded successfully'
     });
+    return;
   } catch (error) {
     console.error('Error uploading content:', error);
     res.status(500).json({ error: 'Failed to upload content' });
+    return;
   }
 });
 
@@ -76,6 +78,7 @@ router.get('/content', async (req: Request, res: Response) => {
       ),
       total: contentDatabase.length
     });
+    return;
   } catch (error) {
     console.error('Error fetching content:', error);
     res.status(500).json({ error: 'Failed to fetch content' });
@@ -109,9 +112,11 @@ router.post('/content/:id/analyze', async (req: Request, res: Response) => {
       content: contentItem,
       analysis
     });
+    return;
   } catch (error) {
     console.error('Error analyzing content:', error);
     res.status(500).json({ error: 'Failed to analyze content' });
+    return;
   }
 });
 
@@ -137,9 +142,11 @@ router.post('/content/:id/integrate', async (req: Request, res: Response) => {
       content: contentItem,
       message: 'Content integrated into personality engine'
     });
+    return;
   } catch (error) {
     console.error('Error integrating content:', error);
     res.status(500).json({ error: 'Failed to integrate content' });
+    return;
   }
 });
 
@@ -167,6 +174,7 @@ router.get('/analytics', async (req: Request, res: Response) => {
     };
 
     res.json(analytics);
+    return;
   } catch (error) {
     console.error('Error fetching analytics:', error);
     res.status(500).json({ error: 'Failed to fetch analytics' });
@@ -206,7 +214,7 @@ async function analyzeContent(content: string, type: string): Promise<ContentAna
 }
 
 function extractKeyPhrases(content: string): string[] {
-  const phrases = [];
+  const phrases: string[] = [];
   
   // Look for drug-related terms
   const drugTerms = ['cocaine', 'coke', 'weed', 'wietje', 'henny', 'hennessy', 'drugs'];
