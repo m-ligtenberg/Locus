@@ -9,17 +9,25 @@ if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
   throw new Error('Missing required environment variables: JWT_SECRET and JWT_REFRESH_SECRET');
 }
 
-// Simple in-memory store for demo (replace with database in production)
-const users = new Map();
-const refreshTokens = new Set();
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 
-// Add demo user for testing
-users.set('demo@locus.com', {
-  id: 'user_demo',
-  email: 'demo@locus.com',
-  name: 'Demo User',
-  password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi' // password: demo123
-});
+// Refresh tokens will be stored in the database through Prisma
+async function storeRefreshToken(userId, token) {
+  await prisma.refreshToken.create({
+    data: {
+      token,
+      userId,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+    }
+  });
+}
+
+async function revokeRefreshToken(token) {
+  await prisma.refreshToken.delete({
+    where: { token }
+  });
+}
 
 export default async function handler(req, res) {
   // Proper CORS for frontend domain

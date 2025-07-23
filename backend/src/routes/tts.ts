@@ -11,23 +11,45 @@ import { authMiddleware } from '../middleware/auth.js';
 const router = Router();
 
 // Configure multer for voice sample uploads
+import env from '../utils/env.js';
+import { v4 as uuidv4 } from 'uuid';
+
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
-    const uploadDir = path.join(process.cwd(), 'data', 'voice_samples');
+    const uploadDir = path.resolve(env.UPLOAD_DIR, 'voice_samples');
     await fs.ensureDir(uploadDir);
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, `sample-${uniqueSuffix}${path.extname(file.originalname)}`);
+    const ext = path.extname(file.originalname).toLowerCase();
+    const uuid = uuidv4();
+    cb(null, `sample-${uuid}${ext}`);
   }
 });
 
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = new Set([
+    'audio/wav',
+    'audio/mpeg',
+    'audio/mp4',
+    'audio/x-flac'
+  ]);
+  
+  if (!allowedTypes.has(file.mimetype)) {
+    cb(new Error('Invalid file type. Only WAV, MP3, M4A, and FLAC files are allowed.'), false);
+    return;
+  }
+  
+  cb(null, true);
+};
+
 const upload = multer({ 
   storage,
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = ['.wav', '.mp3', '.m4a', '.flac'];
+  limits: { 
+    fileSize: env.MAX_FILE_SIZE,
+    files: 1
+  },
+  fileFilter
     const ext = path.extname(file.originalname).toLowerCase();
     if (allowedTypes.includes(ext)) {
       cb(null, true);

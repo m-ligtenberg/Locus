@@ -4,16 +4,19 @@
   "description": "AI-powered travel companion with voice cloning",
   "scripts": {
     "dev": "vercel dev",
-    "build": "cd frontend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "build:docs": "cd docs-site && npm run build",
+    "build:all": "npm run build:frontend && npm run build:docs",
     "start": "vercel --prod",
     "deploy": "vercel --prod"
   },
   "dependencies": {
-    "openai": "^4.20.1",
+    "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2",
-    "bcryptjs": "^2.4.3"
+    "openai": "^4.20.1"
   },
   "devDependencies": {
-    "@vercel/node": "^3.0.12"
+    "@types/node": "^24.1.0",
+    "@vercel/node": "^2.3.0"
   }
 }

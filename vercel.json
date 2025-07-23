@@ -1,11 +1,18 @@
 {
   "version": 2,
-  "buildCommand": "cd frontend && npm install && npm run build",
+  "buildCommand": "npm run build:all",
   "outputDirectory": "frontend/dist",
   "routes": [
     {
+      "src": "/docs/(.*)",
+      "dest": "/docs-site/$1"
+    },
+    {
       "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "dest": "/api/$1",
+      "headers": {
+        "Cache-Control": "s-maxage=60, stale-while-revalidate"
+      }
     },
     {
       "src": "/(.*)",
@@ -15,16 +22,28 @@
   "functions": {
     "api/auth.js": {
       "runtime": "@vercel/node@3.0.12",
-      "maxDuration": 10
+      "maxDuration": 30,
+      "memory": 1024
     },
     "api/chat.js": {
       "runtime": "@vercel/node@3.0.12",
-      "maxDuration": 30
+      "maxDuration": 60,
+      "memory": 2048
     },
     "api/tts.js": {
       "runtime": "@vercel/node@3.0.12",
-      "maxDuration": 60
+      "maxDuration": 120,
+      "memory": 3072
     }
   },
-  "env": {}
+  "env": {
+    "NODE_ENV": "production",
+    "DATABASE_URL": "@database-url",
+    "JWT_SECRET": "@jwt-secret",
+    "JWT_REFRESH_SECRET": "@jwt-refresh-secret",
+    "REDIS_URL": "@redis-url",
+    "OPENAI_API_KEY": "@openai-api-key",
+    "COQUI_API_KEY": "@coqui-api-key",
+    "UPLOAD_DIR": "/tmp/uploads"
+  }
 }
