@@ -1,6 +1,0 @@
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>TravelBot gebruikt je locatie om sarcastische routehints te geven.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Voor spraakoutput of audio hints indien nodig.</string>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Voor gesproken output (via Web Speech of alternatief).</string>

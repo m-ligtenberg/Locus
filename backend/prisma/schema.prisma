@@ -1,0 +1,205 @@
+// Locus v5.0 Database Schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Preferences
+  preferences UserPreferences?
+  
+  // Relations
+  routes       Route[]
+  observations AIObservation[]
+  locations    Location[]
+  sessions     UserSession[]
+
+  @@map("users")
+}
+
+model UserPreferences {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  language              Language @default(NL)
+  persona               Persona  @default(AMSTERDAMMER)
+  voiceEnabled          Boolean  @default(true)
+  nightMode             Boolean  @default(false)
+  gpsAccuracy           GPSAccuracy @default(HIGH)
+  observationFrequency  ObservationFrequency @default(MEDIUM)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user_preferences")
+}
+
+model UserSession {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("user_sessions")
+}
+
+model Location {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  latitude  Float
+  longitude Float
+  accuracy  Float
+  speed     Float?
+  heading   Float?
+  timestamp DateTime @default(now())
+
+  // Relations
+  routeStart       Route[] @relation("RouteStart")
+  routeEnd         Route[] @relation("RouteEnd")
+  routeWaypoints   RouteWaypoint[]
+  observations     AIObservation[]
+
+  @@index([userId, timestamp])
+  @@map("locations")
+}
+
+model Route {
+  id       String      @id @default(cuid())
+  userId   String
+  user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  name     String
+  status   RouteStatus @default(PLANNING)
+  distance Float       // meters
+  duration Float       // seconds
+  
+  startLocationId String
+  startLocation   Location @relation("RouteStart", fields: [startLocationId], references: [id])
+  
+  endLocationId String
+  endLocation   Location @relation("RouteEnd", fields: [endLocationId], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  waypoints RouteWaypoint[]
+  steps     RouteStep[]
+
+  @@index([userId, status])
+  @@map("routes")
+}
+
+model RouteWaypoint {
+  id         String   @id @default(cuid())
+  routeId    String
+  route      Route    @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  locationId String
+  location   Location @relation(fields: [locationId], references: [id])
+  order      Int
+
+  @@unique([routeId, order])
+  @@map("route_waypoints")
+}
+
+model RouteStep {
+  id          String @id @default(cuid())
+  routeId     String
+  route       Route  @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  
+  stepNumber  Int
+  instruction String
+  distance    Float  // meters
+  duration    Float  // seconds
+  maneuver    String
+  coordinates Json   // Array of [lat, lng] coordinates
+
+  @@unique([routeId, stepNumber])
+  @@map("route_steps")
+}
+
+model AIObservation {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  locationId String
+  location   Location @relation(fields: [locationId], references: [id])
+  
+  content    String
+  persona    Persona
+  language   Language
+  confidence Float    @default(0.8)
+  contextData Json    // POIs, weather, etc.
+  
+  createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@map("ai_observations")
+}
+
+model PointOfInterest {
+  id          String @id @default(cuid())
+  name        String
+  category    String
+  latitude    Float
+  longitude   Float
+  description String?
+  rating      Float?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([latitude, longitude])
+  @@map("points_of_interest")
+}
+
+// Enums
+enum Language {
+  NL
+  EN
+  DE
+  FR
+}
+
+enum Persona {
+  AMSTERDAMMER
+  BELGIQUE
+  BRABANDER
+  JORDANEES
+}
+
+enum GPSAccuracy {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum ObservationFrequency {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum RouteStatus {
+  PLANNING
+  ACTIVE
+  COMPLETED
+  PAUSED
+  CANCELLED
+}
