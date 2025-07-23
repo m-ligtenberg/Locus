@@ -2,10 +2,18 @@
 
 echo "🧭 Starting Locus v5.0 with Voice Cloning..."
 
-# Check if .env exists
+# Check if .env exists, create from template if not
 if [ ! -f .env ]; then
-    echo "❌ .env file not found! Please create it with your OpenAI API key."
-    exit 1
+    if [ -f .env.example ]; then
+        echo "📝 Creating .env from template..."
+        cp .env.example .env
+        echo "⚠️  Please edit .env and add your OpenAI API key!"
+        echo "   Get your key from: https://platform.openai.com/api-keys"
+        exit 1
+    else
+        echo "❌ .env file not found! Please create it with your OpenAI API key."
+        exit 1
+    fi
 fi
 
 # Check if Docker is running
