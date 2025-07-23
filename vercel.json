@@ -26,10 +26,5 @@
       "maxDuration": 60
     }
   },
-  "env": {
-    "OPENAI_API_KEY": "@openai-api-key",
-    "JWT_SECRET": "@jwt-secret",
-    "JWT_REFRESH_SECRET": "@jwt-refresh-secret",
-    "FRONTEND_URL": "@frontend-url"
-  }
+  "env": {}
 }
