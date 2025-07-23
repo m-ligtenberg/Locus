@@ -69,3 +69,4 @@ build
 backend/.env
 frontend/.env
 *.env
+.vercel
