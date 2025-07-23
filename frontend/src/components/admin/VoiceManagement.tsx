@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Upload, Settings, Mic, Users } from 'lucide-react';
+import { API_BASE_URL } from '../../config/api';
 
 interface VoiceModel {
   id: string;
@@ -80,7 +81,7 @@ export const VoiceManagement: React.FC = () => {
 
   const fetchVoiceModels = async () => {
     try {
-      const response = await fetch('/api/tts/models', {
+      const response = await fetch(`${API_BASE_URL}/api/tts/models`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
         },
@@ -96,7 +97,7 @@ export const VoiceManagement: React.FC = () => {
 
   const fetchTTSHistory = async () => {
     try {
-      const response = await fetch('/api/tts/history', {
+      const response = await fetch(`${API_BASE_URL}/api/tts/history`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
         },
@@ -115,7 +116,7 @@ export const VoiceManagement: React.FC = () => {
 
     setIsGenerating(true);
     try {
-      const response = await fetch('/api/tts/generate', {
+      const response = await fetch(`${API_BASE_URL}/api/tts/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -147,7 +148,7 @@ export const VoiceManagement: React.FC = () => {
     if (!newModelData.name.trim()) return;
 
     try {
-      const response = await fetch('/api/tts/models', {
+      const response = await fetch(`${API_BASE_URL}/api/tts/models`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -181,7 +182,7 @@ export const VoiceManagement: React.FC = () => {
     formData.append('transcript', sampleTranscript);
 
     try {
-      const response = await fetch(`/api/tts/models/${modelId}/samples`, {
+      const response = await fetch(`${API_BASE_URL}/api/tts/models/${modelId}/samples`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
@@ -208,7 +209,7 @@ export const VoiceManagement: React.FC = () => {
     if (!confirm('Start training this voice model? This may take several hours.')) return;
 
     try {
-      const response = await fetch(`/api/tts/models/${modelId}/train`, {
+      const response = await fetch(`${API_BASE_URL}/api/tts/models/${modelId}/train`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,

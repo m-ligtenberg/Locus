@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Upload, Mic, Play, Pause, Trash2, CheckCircle, AlertCircle, Volume2 } from 'lucide-react';
+import { API_BASE_URL } from '../../config/api';
 
 interface UploadedFile {
   id: string;
@@ -177,7 +178,7 @@ export const SimpleVoiceUpload: React.FC = () => {
       formData.append('speakerAudio', speakerFile.file);
       formData.append('text', cloneText);
 
-      const response = await fetch('/api/tts/clone', {
+      const response = await fetch(`${API_BASE_URL}/api/tts/clone`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
@@ -213,7 +214,7 @@ export const SimpleVoiceUpload: React.FC = () => {
 
     try {
       // First create a voice model
-      const modelResponse = await fetch('/api/tts/models', {
+      const modelResponse = await fetch(`${API_BASE_URL}/api/tts/models`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -239,7 +240,7 @@ export const SimpleVoiceUpload: React.FC = () => {
       });
       formData.append('transcript', filesWithTranscripts[0].transcript); // Use first transcript
 
-      const samplesResponse = await fetch(`/api/tts/models/${modelData.data.id}/samples`, {
+      const samplesResponse = await fetch(`${API_BASE_URL}/api/tts/models/${modelData.data.id}/samples`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
