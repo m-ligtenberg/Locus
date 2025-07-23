@@ -72,14 +72,12 @@ class TTSService {
   }
 
   async getVoiceModels(): Promise<VoiceModel[]> {
-    const response = await axios.get(`${API_BASE}/tts`, {
-      headers: this.getAuthHeaders(),
-    });
-    return response.data.models;
+    const response = await axios.get(`${API_BASE}/tts/models`);
+    return response.data.data.models;
   }
 
   async createVoiceModel(request: CreateVoiceModelRequest) {
-    const response = await axios.post(`${API_BASE}/tts/upload`, request, {
+    const response = await axios.post(`${API_BASE}/tts/models`, request, {
       headers: this.getAuthHeaders(),
     });
     return response.data;
@@ -111,7 +109,7 @@ class TTSService {
       params: { page, limit },
       headers: this.getAuthHeaders(),
     });
-    return response.data;
+    return response.data.data;
   }
 
   async getAvailableModels() {

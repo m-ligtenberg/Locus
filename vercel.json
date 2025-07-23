@@ -2,9 +2,34 @@
   "version": 2,
   "buildCommand": "cd frontend && npm run build",
   "outputDirectory": "frontend/dist",
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "@vercel/node@3.0.12"
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/dist/$1"
     }
+  ],
+  "functions": {
+    "api/auth.js": {
+      "runtime": "@vercel/node@3.0.12",
+      "maxDuration": 10
+    },
+    "api/chat.js": {
+      "runtime": "@vercel/node@3.0.12",
+      "maxDuration": 30
+    },
+    "api/tts.js": {
+      "runtime": "@vercel/node@3.0.12",
+      "maxDuration": 60
+    }
+  },
+  "env": {
+    "OPENAI_API_KEY": "@openai-api-key",
+    "JWT_SECRET": "@jwt-secret",
+    "JWT_REFRESH_SECRET": "@jwt-refresh-secret",
+    "FRONTEND_URL": "@frontend-url"
   }
 }
