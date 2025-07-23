@@ -26,8 +26,5 @@
       "maxDuration": 60
     }
   },
-  "env": {},
-  "engines": {
-    "node": "20.x"
-  }
+  "env": {}
 }

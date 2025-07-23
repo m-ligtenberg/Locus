@@ -25,6 +25,9 @@
     "zod": "^3.22.4",
     "@hookform/resolvers": "^3.3.2"
   },
+  "engines": {
+    "node": "20.x"
+  },
   "devDependencies": {
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
