@@ -4,8 +4,8 @@ const API_BASE = process.env.VITE_API_URL || '/api';
 
 interface TTSGenerateRequest {
   text: string;
-  persona: 'AMSTERDAMMER' | 'BELGIQUE' | 'BRABANDER' | 'JORDANEES';
-  language: 'NL' | 'EN' | 'DE' | 'FR';
+  persona: 'assistant' | 'guide' | 'planner' | 'explorer';
+  language: 'en' | 'es' | 'fr' | 'de';
 }
 
 interface VoiceCloneRequest {
@@ -36,8 +36,8 @@ interface VoiceSample {
 
 interface CreateVoiceModelRequest {
   name: string;
-  persona: 'AMSTERDAMMER' | 'BELGIQUE' | 'BRABANDER' | 'JORDANEES';
-  language: 'NL' | 'EN' | 'DE' | 'FR';
+  persona: 'assistant' | 'guide' | 'planner' | 'explorer';
+  language: 'en' | 'es' | 'fr' | 'de';
   description?: string;
 }
 
@@ -52,6 +52,7 @@ class TTSService {
   async generateTTS(request: TTSGenerateRequest) {
     const response = await axios.post(`${API_BASE}/tts/generate`, request, {
       headers: this.getAuthHeaders(),
+      responseType: 'blob'
     });
     return response.data;
   }
@@ -71,14 +72,14 @@ class TTSService {
   }
 
   async getVoiceModels(): Promise<VoiceModel[]> {
-    const response = await axios.get(`${API_BASE}/tts/models`, {
+    const response = await axios.get(`${API_BASE}/tts`, {
       headers: this.getAuthHeaders(),
     });
-    return response.data.data;
+    return response.data.models;
   }
 
   async createVoiceModel(request: CreateVoiceModelRequest) {
-    const response = await axios.post(`${API_BASE}/tts/models`, request, {
+    const response = await axios.post(`${API_BASE}/tts/upload`, request, {
       headers: this.getAuthHeaders(),
     });
     return response.data;

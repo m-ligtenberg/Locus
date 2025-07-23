@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, Play, Pause, Trash2, Download, Settings, Mic, Users } from 'lucide-react';
+import { Upload, Settings, Mic, Users } from 'lucide-react';
 
 interface VoiceModel {
   id: string;
@@ -37,7 +37,6 @@ export const VoiceManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'models' | 'samples' | 'generate' | 'history'>('models');
   const [voiceModels, setVoiceModels] = useState<VoiceModel[]>([]);
   const [ttsHistory, setTtsHistory] = useState<TTSRequest[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedModel, setSelectedModel] = useState<VoiceModel | null>(null);
 
   // Voice generation state

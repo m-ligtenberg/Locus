@@ -1,0 +1,19 @@
+{
+  "name": "locus",
+  "version": "5.0.0",
+  "description": "AI-powered travel companion with voice cloning",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "cd frontend && npm run build",
+    "start": "vercel --prod",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "openai": "^4.20.1",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3"
+  },
+  "devDependencies": {
+    "@vercel/node": "^3.0.12"
+  }
+}
