@@ -203,3 +203,82 @@ enum RouteStatus {
   PAUSED
   CANCELLED
 }
+
+// Voice Models for TTS
+model VoiceModel {
+  id        String   @id @default(cuid())
+  name      String
+  persona   Persona
+  language  Language
+  
+  // Coqui TTS model info
+  modelPath     String?  // Path to trained model file
+  configPath    String?  // Path to model config
+  speakerWav    String?  // Path to speaker reference audio
+  isTraining    Boolean  @default(false)
+  trainingStatus String? // 'pending', 'training', 'completed', 'failed'
+  
+  // Metadata
+  description   String?
+  isActive      Boolean  @default(false)
+  quality       Float?   // Quality score 0-1
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  samples   VoiceSample[]
+  
+  @@unique([persona, language])
+  @@map("voice_models")
+}
+
+model VoiceSample {
+  id           String @id @default(cuid())
+  voiceModelId String
+  voiceModel   VoiceModel @relation(fields: [voiceModelId], references: [id], onDelete: Cascade)
+  
+  filename     String
+  filePath     String
+  transcript   String // What was said in the audio
+  duration     Float  // Duration in seconds
+  sampleRate   Int    // Audio sample rate
+  
+  isApproved   Boolean @default(false)
+  qualityScore Float?  // Quality assessment 0-1
+  
+  createdAt    DateTime @default(now())
+  
+  @@map("voice_samples")
+}
+
+model TTSRequest {
+  id        String   @id @default(cuid())
+  userId    String?
+  
+  text      String
+  persona   Persona
+  language  Language
+  
+  // Output info
+  audioPath String?
+  audioUrl  String?
+  duration  Float?
+  
+  // Processing status
+  status    TTSStatus @default(PENDING)
+  error     String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([userId, createdAt])
+  @@map("tts_requests")
+}
+
+enum TTSStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}

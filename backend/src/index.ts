@@ -11,6 +11,7 @@ import { routesRouter } from './routes/routes.js';
 import { observationsRouter } from './routes/observations.js';
 import { navigationRouter } from './routes/navigation.js';
 import { locationRouter } from './routes/location.js';
+import { ttsRouter } from './routes/tts.js';
 
 import { authMiddleware } from './middleware/auth.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -65,6 +66,7 @@ app.use('/api/routes', authMiddleware, routesRouter);
 app.use('/api/observations', authMiddleware, observationsRouter);
 app.use('/api/navigation', authMiddleware, navigationRouter);
 app.use('/api/location', authMiddleware, locationRouter);
+app.use('/api/tts', ttsRouter);
 
 // Error handling
 app.use(errorHandler);

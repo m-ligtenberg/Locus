@@ -1,0 +1,127 @@
+# Extended Docker Compose with Coqui TTS support
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: locus-postgres
+    environment:
+      POSTGRES_DB: locus
+      POSTGRES_USER: locus_user
+      POSTGRES_PASSWORD: locus_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - locus-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U locus_user -d locus"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis for caching and real-time data
+  redis:
+    image: redis:7-alpine
+    container_name: locus-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - locus-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Coqui TTS Service
+  coqui-tts:
+    build:
+      context: ./docker/coqui-tts/
+      dockerfile: Dockerfile
+    container_name: locus-coqui-tts
+    volumes:
+      - ./data/voice_models:/app/voice_models
+      - ./data/tts_output:/app/tts_output
+      - ./data/voice_samples:/app/voice_samples
+    environment:
+      - COQUI_TTS_CACHE_PATH=/app/.cache
+    networks:
+      - locus-network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    # Uncomment if you don't have GPU support
+    # runtime: runc
+
+  # Backend API (with TTS integration)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: locus-backend
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://locus_user:locus_password@postgres:5432/locus
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      JWT_REFRESH_SECRET: your-super-secret-refresh-key-change-in-production
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      FRONTEND_URL: http://localhost:3000
+      # Coqui TTS Configuration
+      COQUI_TTS_HOST: coqui-tts
+      COQUI_TTS_PORT: 8000
+      COQUI_TTS_PATH: http://coqui-tts:8000
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      coqui-tts:
+        condition: service_started
+    networks:
+      - locus-network
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./data:/app/data
+    restart: unless-stopped
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: locus-frontend
+    environment:
+      VITE_API_URL: http://localhost:5000/api
+      VITE_WS_URL: http://localhost:5000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - locus-network
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  locus-network:
+    driver: bridge
