@@ -61,5 +61,11 @@ node_modules/
 # Ignore Gradle build output directory
 build
 
-# Environment variable file
+# Environment variable files
 .env
+.env.local
+.env.development
+.env.production
+backend/.env
+frontend/.env
+*.env
