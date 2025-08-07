@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200;
+  }
+  
+  .btn-primary {
+    @apply btn text-white bg-primary-600 hover:bg-primary-700 focus:ring-primary-500;
+  }
+  
+  .btn-secondary {
+    @apply btn text-gray-700 bg-white border-gray-300 hover:bg-gray-50 focus:ring-primary-500;
+  }
+  
+  .btn-danger {
+    @apply btn text-white bg-red-600 hover:bg-red-700 focus:ring-red-500;
+  }
+  
+  .form-input {
+    @apply block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm;
+  }
+  
+  .form-textarea {
+    @apply block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm;
+  }
+  
+  .form-select {
+    @apply block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm;
+  }
+  
+  .card {
+    @apply bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200;
+  }
+  
+  .card-hover {
+    @apply card hover:shadow-md transition-shadow duration-200;
+  }
+  
+  .alert {
+    @apply px-4 py-3 rounded relative;
+  }
+  
+  .alert-success {
+    @apply alert bg-green-100 border border-green-400 text-green-700;
+  }
+  
+  .alert-error {
+    @apply alert bg-red-100 border border-red-400 text-red-700;
+  }
+  
+  .alert-warning {
+    @apply alert bg-yellow-100 border border-yellow-400 text-yellow-700;
+  }
+
+  /* Dashboard-specific components */
+  .stat-card {
+    @apply card p-6 hover:shadow-lg transition-shadow duration-200;
+  }
+  
+  .stat-icon {
+    @apply w-12 h-12 rounded-lg flex items-center justify-center;
+  }
+  
+  .stat-value {
+    @apply text-2xl font-bold;
+  }
+  
+  .stat-label {
+    @apply text-sm font-medium text-gray-600;
+  }
+  
+  .stat-change {
+    @apply text-xs text-gray-500 mt-1;
+  }
+  
+  .notification-dot {
+    @apply absolute -top-2 -right-2 h-4 w-4 bg-red-400 rounded-full flex items-center justify-center;
+  }
+  
+  .property-card {
+    @apply border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-colors duration-200;
+  }
+  
+  .status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .status-active {
+    @apply status-badge bg-green-100 text-green-800;
+  }
+  
+  .status-sold {
+    @apply status-badge bg-blue-100 text-blue-800;
+  }
+  
+  .status-draft {
+    @apply status-badge bg-gray-100 text-gray-800;
+  }
+  
+  .status-paid {
+    @apply status-badge bg-green-100 text-green-800;
+  }
+  
+  .status-pending {
+    @apply status-badge bg-yellow-100 text-yellow-800;
+  }
+}
